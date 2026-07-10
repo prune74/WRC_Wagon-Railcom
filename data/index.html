@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Wagon RailCom – Interface</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h2>Wagon RailCom – Interface Technique</h2>
+    </header>
+
+    <div class="dashboard">
+
+        <!-- Carte Adresse -->
+        <div class="card">
+            <h4>Adresse RailCom</h4>
+            <div class="form-grid-2col">
+                <label>Adresse :</label>
+                <input id="adresse" type="number" min="1" max="10239">
+            </div>
+
+            <!-- Message d’erreur adresse -->
+            <div id="msgErreurAdresse" style="display:none; margin-top:8px; font-size:14px;"></div>
+
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirAdresse()">Enregistrer</button>
+            </div>
+        </div>
+
+        <!-- Carte WiFi -->
+        <div class="card">
+            <h4>WiFi</h4>
+            <div class="form-grid-2col">
+                <label>WiFi actif :</label>
+                <input id="wifi_actif" type="checkbox">
+            </div>
+
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirWifi()">Enregistrer</button>
+            </div>
+        </div>
+
+        <!-- Carte FX -->
+        <div class="card">
+            <h4>Effets (FX)</h4>
+
+            <div class="form-grid-2col">
+                <label>Feu arrière :</label>
+                <input id="feu_arriere" type="checkbox">
+            </div>
+
+            <div class="form-grid-2col">
+                <label>Lumière intérieure :</label>
+                <input id="lumiere_interieure" type="checkbox">
+            </div>
+
+            <div class="form-grid-2col">
+                <label>Servo porte :</label>
+                <input id="servo_porte" type="checkbox">
+            </div>
+
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirFx()">Enregistrer</button>
+            </div>
+        </div>
+
+        <!-- Carte RailCom Live -->
+        <div class="card">
+            <h4>RailCom Live</h4>
+            <pre id="railcomLive" class="rawData">En attente de données RailCom...</pre>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

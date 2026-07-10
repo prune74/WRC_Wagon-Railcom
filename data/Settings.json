@@ -1,0 +1,9 @@
+{
+  "adresse": 4001,
+  "wifi_actif": true,
+  "fx": {
+    "feu_arriere": false,
+    "lumiere_interieure": true,
+    "servo_porte": false
+  }
+}
