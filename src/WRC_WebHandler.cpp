@@ -55,8 +55,19 @@ void WRC_WebHandler::definirRoutes()
      * --------------------------------------------------------------------- */
     serveur->on("/obtenirParametres", HTTP_GET, [](AsyncWebServerRequest *req)
                 {
-        String json = WRC_Json::construireJsonParametres();
-        req->send(200, "application/json", json); });
+        JsonDocument doc;
+        JsonObject root = doc.to<JsonObject>();
+        JsonObject fx   = root["fx"].to<JsonObject>();
+
+        root["wifi_actif"] = WRC_Settings::WIFI_ACTIF;
+        root["adresse"]    = WRC_Settings::ADRESSE;
+
+        for (size_t i = 0; i < WRC_Settings::FX_COUNT; i++)
+            fx[WRC_Settings::FX_LIST[i]->jsonName] = *(WRC_Settings::FX_LIST[i]->value);
+
+        String out;
+        serializeJson(doc, out);
+        req->send(200, "application/json", out); });
 
     /* -----------------------------------------------------------------------
      * POST /definirAdresse
@@ -114,28 +125,87 @@ void WRC_WebHandler::definirRoutes()
                 {
         String body = String((char*)data).substring(0, len);
 
-        bool feu_arriere, lumiere_interieure, servo_porte;
-
-        if (WRC_Json::lireFx(body, feu_arriere, lumiere_interieure, servo_porte))
-        {
-            WRC_Settings::FX_FEU_ARRIERE        = feu_arriere;
-            WRC_Settings::FX_LUMIERE_INTERIEURE = lumiere_interieure;
-            WRC_Settings::FX_SERVO_PORTE        = servo_porte;
-
-            WRC_Settings::writeFile();
-            WRC_FXDriver::mettreAJourFx();
-
-            req->send(200, "text/plain", "OK");
-
-            LOG_INFO("FX mis à jour : arrière=%s, intérieur=%s, servo=%s",
-                     feu_arriere ? "true" : "false",
-                     lumiere_interieure ? "true" : "false",
-                     servo_porte ? "true" : "false");
-        }
-        else
+        JsonDocument doc;
+        if (deserializeJson(doc, body))
         {
             req->send(400, "text/plain", "JSON invalide");
-        } });
+            return;
+        }
+
+        JsonObject fx = doc["fx"];
+        if (!fx.isNull())
+        {
+            for (size_t i = 0; i < WRC_Settings::FX_COUNT; i++)
+            {
+                const char* name = WRC_Settings::FX_LIST[i]->jsonName;
+
+                if (!fx[name].isNull())
+                {
+                    *(WRC_Settings::FX_LIST[i]->value) = fx[name] | *(WRC_Settings::FX_LIST[i]->value);
+                }
+            }
+
+            WRC_Settings::writeFile();
+        }
+
+        req->send(200, "text/plain", "OK"); });
+
+    /* -----------------------------------------------------------------------
+     * SAUVEGARDE GENERALE
+     * --------------------------------------------------------------------- */
+    serveur->on("/sauvegardeGenerale", HTTP_POST, [](AsyncWebServerRequest *req) {}, NULL, 
+        [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t index, size_t total)
+                {
+        String body;
+        body.reserve(total);
+        body = String((char*)data).substring(0, len);
+
+        JsonDocument doc;
+        if (deserializeJson(doc, body))
+        {
+            req->send(400, "text/plain", "JSON invalide");
+            return;
+        }
+
+        // Adresse
+        WRC_Settings::ADRESSE = doc["adresse"] | WRC_Settings::ADRESSE;
+
+        // WiFi
+        WRC_Settings::WIFI_ACTIF = doc["wifi_actif"] | WRC_Settings::WIFI_ACTIF;
+
+        // FX
+        JsonObject fx = doc["fx"];
+        if (!fx.isNull())
+        {
+            for (size_t i = 0; i < WRC_Settings::FX_COUNT; i++)
+            {
+                *(WRC_Settings::FX_LIST[i]->value) =
+                    fx[WRC_Settings::FX_LIST[i]->jsonName] |
+                    *(WRC_Settings::FX_LIST[i]->value);
+            }
+        }
+
+        // Sauvegarde
+        WRC_Settings::writeFile();
+
+        req->send(200, "text/plain", "Sauvegarde OK"); });
+
+    /* -----------------------------------------------------------------------
+     * REMISE A ZERO
+     * --------------------------------------------------------------------- */
+    serveur->on("/resetParametres", HTTP_POST, [](AsyncWebServerRequest *req)
+                {
+        // Remettre les valeurs par défaut
+        WRC_Settings::WIFI_ACTIF = true;
+        WRC_Settings::ADRESSE    = 4001;
+
+        for (size_t i = 0; i < WRC_Settings::FX_COUNT; i++)
+            *(WRC_Settings::FX_LIST[i]->value) = false;
+
+        // Sauvegarder dans Settings.json
+        WRC_Settings::writeFile();
+
+        req->send(200, "text/plain", "Paramètres réinitialisés"); });
 }
 
 /* ---------------------------------------------------------------------------
@@ -159,7 +229,7 @@ void WRC_WebHandler::evenementWs(AsyncWebSocket *server,
 }
 
 /* ---------------------------------------------------------------------------
- * Loop
+ * BOUCLE
  * ------------------------------------------------------------------------- */
 void WRC_WebHandler::Loop()
 {

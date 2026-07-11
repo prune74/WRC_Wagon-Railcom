@@ -1,6 +1,28 @@
 let ws;
 
 /* ---------------------------------------------------------------------------
+ * COLORATION JSON (avec classes CSS)
+ * ------------------------------------------------------------------------- */
+function colorizeJson(obj) {
+    let json = JSON.stringify(obj, null, 2);
+
+    return json
+        .replace(/"(.*?)":/g, (match, key) => {
+            return `<span class="json-key">"${key}"</span>:`;
+        })
+        .replace(/: "([^"]*)"/g, (match, value) => {
+            return `: <span class="json-string">"${value}"</span>`;
+        })
+        .replace(/: (\d+)/g, (match, num) => {
+            return `: <span class="json-number">${num}</span>`;
+        })
+        .replace(/: (true|false)/g, (match, bool) => {
+            return `: <span class="json-boolean">${bool}</span>`;
+        })
+        .replace(/: null/g, `: <span class="json-null">null</span>`);
+}
+
+/* ---------------------------------------------------------------------------
  * INITIALISATION
  * ------------------------------------------------------------------------- */
 window.onload = () => {
@@ -15,11 +37,31 @@ function chargerParametres() {
     fetch("/obtenirParametres")
         .then(r => r.json())
         .then(p => {
+
             document.getElementById("adresse").value = p.adresse;
             document.getElementById("wifi_actif").checked = p.wifi_actif;
-            document.getElementById("feu_arriere").checked = p.feu_arriere;
-            document.getElementById("lumiere_interieure").checked = p.lumiere_interieure;
-            document.getElementById("servo_porte").checked = p.servo_porte;
+
+            // ⭐ Génération dynamique des FX
+            const fxContainer = document.getElementById("fxContainer");
+            fxContainer.innerHTML = "";
+
+            for (const key in p.fx) {
+                fxContainer.innerHTML += `
+                    <div class="form-grid-2col">
+                        <label>${key.replace(/_/g, " ")} :</label>
+                        <input id="${key}" type="checkbox" class="fx-checkbox">
+                    </div>
+                `;
+            }
+
+            // ⭐ Mise à jour des valeurs
+            for (const key in p.fx) {
+                const el = document.getElementById(key);
+                if (el) el.checked = p.fx[key];
+            }
+
+            document.getElementById("jsonDebug").innerHTML =
+                colorizeJson(p);
         });
 }
 
@@ -75,11 +117,12 @@ function definirAdresse() {
         method: "POST",
         body: JSON.stringify({ adresse })
     })
-        .then(r => {
-            if (!r.ok) {
-                return r.text().then(msg => afficherErreur(msg));
-            }
-        });
+    .then(r => {
+        if (!r.ok) {
+            return r.text().then(msg => afficherErreur(msg));
+        }
+        chargerParametres();
+    });
 }
 
 /* ---------------------------------------------------------------------------
@@ -91,32 +134,28 @@ function definirWifi() {
     fetch("/definirWifi", {
         method: "POST",
         body: JSON.stringify({ wifi_actif })
-    });
+    })
+    .then(() => chargerParametres());
 }
 
 /* ---------------------------------------------------------------------------
  * DÉFINIR FX
  * ------------------------------------------------------------------------- */
 function definirFx() {
-    const fxArriere   = document.getElementById("feu_arriere").checked;
-    const fxInterieur = document.getElementById("lumiere_interieure").checked;
-    const fxServo     = document.getElementById("servo_porte").checked;
+    const fx = {};
 
-    const json = {
-        fx: {
-            feu_arriere: fxArriere,
-            lumiere_interieure: fxInterieur,
-            servo_porte: fxServo
-        }
-    };
+    // ⭐ FX dynamiques
+    document.querySelectorAll(".fx-checkbox").forEach(el => {
+        fx[el.id] = el.checked;
+    });
 
     fetch("/definirFx", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(json)
-    });
+        body: JSON.stringify({ fx })
+    })
+    .then(() => chargerParametres());
 }
-
 
 /* ---------------------------------------------------------------------------
  * WEBSOCKET RAILCOM
@@ -130,4 +169,57 @@ function initWebSocket() {
 
     ws.onopen = () => console.log("WebSocket connecté");
     ws.onclose = () => console.log("WebSocket déconnecté");
+}
+
+/* ---------------------------------------------------------------------------
+ * REMISE A ZERO
+ * ------------------------------------------------------------------------- */
+function resetParametres() {
+    if (!confirm("Confirmer la réinitialisation des paramètres ?")) return;
+
+    fetch("/resetParametres", {
+        method: "POST"
+    })
+    .then(r => {
+        if (!r.ok) {
+            return r.text().then(msg => alert("Erreur reset : " + msg));
+        }
+        // On recharge les paramètres après reset
+        chargerParametres();
+    })
+    .catch(err => {
+        alert("Erreur réseau lors du reset : " + err);
+    });
+}
+
+/* ---------------------------------------------------------------------------
+ * SAUVEGARDE GENERALE
+ * ------------------------------------------------------------------------- */
+function sauvegardeGenerale() {
+
+    const adresse = parseInt(document.getElementById("adresse").value);
+    const wifi_actif = document.getElementById("wifi_actif").checked;
+
+    const fx = {};
+    document.querySelectorAll(".fx-checkbox").forEach(el => {
+        fx[el.id] = el.checked;
+    });
+
+    fetch("/sauvegardeGenerale", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            adresse,
+            wifi_actif,
+            fx
+        })
+    })
+    .then(r => {
+        if (!r.ok) {
+            return r.text().then(msg => alert("Erreur sauvegarde : " + msg));
+        }
+        alert("Sauvegarde effectuée !");
+        chargerParametres();
+    })
+    .catch(err => alert("Erreur réseau : " + err));
 }

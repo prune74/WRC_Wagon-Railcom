@@ -9,16 +9,18 @@ String WRC_Json::construireJsonParametres()
 {
     JsonDocument doc;
 
-    doc["adresse"]    = WRC_Settings::ADRESSE;
-    doc["wifi_actif"] = WRC_Settings::WIFI_ACTIF;
+    JsonObject root = doc.to<JsonObject>();
+    JsonObject fx = root["fx"].to<JsonObject>();
 
-    // ArduinoJson V7 : création explicite de l'objet fx
-    doc["fx"] = JsonObject();
-    JsonObject fx = doc["fx"].as<JsonObject>();
+    root["adresse"] = WRC_Settings::ADRESSE;
+    root["wifi_actif"] = WRC_Settings::WIFI_ACTIF;
 
-    fx["feu_arriere"]        = WRC_Settings::FX_FEU_ARRIERE;
-    fx["lumiere_interieure"] = WRC_Settings::FX_LUMIERE_INTERIEURE;
-    fx["servo_porte"]        = WRC_Settings::FX_SERVO_PORTE;
+    // ⭐ FX dynamiques
+    for (size_t i = 0; i < WRC_Settings::FX_COUNT; i++)
+    {
+        const char *name = WRC_Settings::FX_LIST[i]->jsonName;
+        fx[name] = *(WRC_Settings::FX_LIST[i]->value);
+    }
 
     String out;
     serializeJson(doc, out);
@@ -74,9 +76,9 @@ bool WRC_Json::lireFx(const String &json,
 
     JsonObject fx = doc["fx"].as<JsonObject>();
 
-    feu_arriere        = fx["feu_arriere"]        | false;
+    feu_arriere = fx["feu_arriere"] | false;
     lumiere_interieure = fx["lumiere_interieure"] | false;
-    servo_porte        = fx["servo_porte"]        | false;
+    servo_porte = fx["servo_porte"] | false;
 
     return true;
 }

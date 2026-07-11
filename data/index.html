@@ -46,21 +46,7 @@
         <!-- Carte FX -->
         <div class="card">
             <h4>Effets (FX)</h4>
-
-            <div class="form-grid-2col">
-                <label>Feu arrière :</label>
-                <input id="feu_arriere" type="checkbox">
-            </div>
-
-            <div class="form-grid-2col">
-                <label>Lumière intérieure :</label>
-                <input id="lumiere_interieure" type="checkbox">
-            </div>
-
-            <div class="form-grid-2col">
-                <label>Servo porte :</label>
-                <input id="servo_porte" type="checkbox">
-            </div>
+            <div id="fxContainer"></div>
 
             <div class="button-row">
                 <button class="btn-primary" onclick="definirFx()">Enregistrer</button>
@@ -71,6 +57,26 @@
         <div class="card">
             <h4>RailCom Live</h4>
             <pre id="railcomLive" class="rawData">En attente de données RailCom...</pre>
+        </div>
+
+        <!-- Carte JSON Debug -->
+        <div class="card">
+            <h4>Paramètres JSON</h4>
+            <pre id="jsonDebug" class="rawData"
+                style="background:#1a1a1a;color:#00ff00;padding:10px;border-radius:6px;white-space:pre-wrap;">
+                Chargement des paramètres...
+            </pre>
+        </div>
+
+        <!-- Carte Reset / Sauvegarde -->
+        <div class="card">
+            <h4>Maintenance</h4>
+            <p>Réinitialisation ou sauvegarde immédiate des paramètres.</p>
+
+            <div class="button-row">
+                <button class="btn-danger" onclick="resetParametres()">Reset complet</button>
+                <button class="btn-primary" onclick="sauvegardeGenerale()">Sauvegarder</button>
+            </div>
         </div>
 
     </div>

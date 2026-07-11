@@ -13,7 +13,15 @@ public:
     static void mettreAJourFx();
 
 private:
-    static void appliquerServoPorte(bool actif);
-    static void appliquerLedInterieure(bool actif);
+    // Fonctions FX: à ajouter à chaque fonction nouvelle
     static void appliquerLedArriere(bool actif);
+    static void appliquerLedInterieure(bool actif);
+    static void appliquerServoPorte(bool actif);
+
+    // Structure pour associer un FX à une fonction
+    struct FxBehavior {
+        void (*func)(bool actif);
+    };
+
+    static FxBehavior FX_BEHAVIORS[];
 };

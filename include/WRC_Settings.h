@@ -5,14 +5,31 @@
 class WRC_Settings
 {
 public:
-    static bool     WIFI_ACTIF;
+    static bool WIFI_ACTIF;
     static uint16_t ADRESSE;
 
-    static bool FX_FEU_ARRIERE;
-    static bool FX_LUMIERE_INTERIEURE;
-    static bool FX_SERVO_PORTE;
+    struct FxItem
+    {
+        const char *jsonName;
+        bool *value;
+    };
 
-    // Liste des adresses connues
+    // ---------------------------------------------------------
+    // Déclarations générées automatiquement
+    // ---------------------------------------------------------
+    #define FX_ENTRY(NAME, JSON, FUNC) \
+        static bool FX_##NAME;         \
+        static FxItem FX_ITEM_##NAME;
+
+    #include "WRC_FX.inc"
+    #undef FX_ENTRY
+
+    // ---------------------------------------------------------
+    // Tableau FX_LIST
+    // ---------------------------------------------------------
+    static FxItem *FX_LIST[];
+    static size_t FX_COUNT;
+
     static std::vector<uint16_t> ADRESSES_CONNUES;
 
     static void Begin();
@@ -20,7 +37,4 @@ public:
     static void writeFile();
 
     static uint16_t getAdresse();
-
-    // Vérification doublon
-    static bool adresseExiste(uint16_t adresse);
 };
