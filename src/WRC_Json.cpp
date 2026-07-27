@@ -8,19 +8,20 @@
 String WRC_Json::construireJsonParametres()
 {
     JsonDocument doc;
-
     JsonObject root = doc.to<JsonObject>();
-    JsonObject fx = root["fx"].to<JsonObject>();
 
     root["adresse"] = WRC_Settings::ADRESSE;
     root["wifi_actif"] = WRC_Settings::WIFI_ACTIF;
 
-    // ⭐ FX dynamiques
-    for (size_t i = 0; i < WRC_Settings::FX_COUNT; i++)
-    {
-        const char *name = WRC_Settings::FX_LIST[i]->jsonName;
-        fx[name] = *(WRC_Settings::FX_LIST[i]->value);
-    }
+    // Servo
+    root["servo_porte_angle_ouvert"] = WRC_Settings::SERVO_PORTE_ANGLE_OUVERT;
+    root["servo_porte_angle_ferme"] = WRC_Settings::SERVO_PORTE_ANGLE_FERME;
+    root["servo_porte_vitesse"] = WRC_Settings::SERVO_PORTE_VITESSE;
+
+    // ⭐ 3 FX fixes — plus de boucle, plus de fx{}
+    root["feu_arriere"] = WRC_Settings::FEU_ARRIERE;
+    root["lumiere_interieure"] = WRC_Settings::LUMIERE_INTERIEURE;
+    root["servo_porte"] = WRC_Settings::SERVO_PORTE;
 
     String out;
     serializeJson(doc, out);
@@ -35,7 +36,6 @@ bool WRC_Json::lireAdresse(const String &json, uint16_t &adresse)
     JsonDocument doc;
     if (deserializeJson(doc, json))
         return false;
-
     if (!doc["adresse"].is<uint16_t>())
         return false;
 
@@ -51,7 +51,6 @@ bool WRC_Json::lireWifi(const String &json, bool &wifi_actif)
     JsonDocument doc;
     if (deserializeJson(doc, json))
         return false;
-
     if (!doc["wifi_actif"].is<bool>())
         return false;
 
@@ -60,25 +59,46 @@ bool WRC_Json::lireWifi(const String &json, bool &wifi_actif)
 }
 
 /* ---------------------------------------------------------------------------
- * JSON → parse FX
+ * JSON → parse FX feu arrière
  * ------------------------------------------------------------------------- */
-bool WRC_Json::lireFx(const String &json,
-                      bool &feu_arriere,
-                      bool &lumiere_interieure,
-                      bool &servo_porte)
+bool WRC_Json::lireFeuArriere(const String &json, bool &FxFeuArriere_actif)
 {
     JsonDocument doc;
     if (deserializeJson(doc, json))
         return false;
-
-    if (!doc["fx"].is<JsonObject>())
+    if (!doc["feu_arriere"].is<bool>())
         return false;
 
-    JsonObject fx = doc["fx"].as<JsonObject>();
+    FxFeuArriere_actif = doc["feu_arriere"].as<bool>();
+    return true;
+}
 
-    feu_arriere = fx["feu_arriere"] | false;
-    lumiere_interieure = fx["lumiere_interieure"] | false;
-    servo_porte = fx["servo_porte"] | false;
+/* ---------------------------------------------------------------------------
+ * JSON → parse FX lumière intérieure
+ * ------------------------------------------------------------------------- */
+bool WRC_Json::lireLumiereInterieure(const String &json, bool &FxLumiereInterieure_actif)
+{
+    JsonDocument doc;
+    if (deserializeJson(doc, json))
+        return false;
+    if (!doc["lumiere_interieure"].is<bool>())
+        return false;
 
+    FxLumiereInterieure_actif = doc["lumiere_interieure"].as<bool>();
+    return true;
+}
+
+/* ---------------------------------------------------------------------------
+ * JSON → parse FX servo porte
+ * ------------------------------------------------------------------------- */
+bool WRC_Json::lireServoPorteFx(const String &json, bool &FxServoPorte_actif)
+{
+    JsonDocument doc;
+    if (deserializeJson(doc, json))
+        return false;
+    if (!doc["servo_porte"].is<bool>())
+        return false;
+
+    FxServoPorte_actif = doc["servo_porte"].as<bool>();
     return true;
 }

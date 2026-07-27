@@ -3,13 +3,21 @@
 #include "WRC_CutoutDetector.h"
 #include "WRC_Debug.h"
 #include "WRC_Pins.h"
+#include "WRC_Settings.h"
 
+// ---------------------------------------------------------------------------
+// VARIABLES STATIQUES
+// ---------------------------------------------------------------------------
 volatile uint32_t WRC_RailcomDriver::dernierFront = 0;
 volatile uint16_t WRC_RailcomDriver::transitions[128];
 volatile uint8_t  WRC_RailcomDriver::nbTransitions = 0;
 
 WRC_RailcomFrame WRC_RailcomDriver::frameCourante;
 bool             WRC_RailcomDriver::frameDisponible = false;
+
+// Ajout pour adresses longues RailCom
+uint16_t WRC_RailcomDriver::s_ch1Adresse = 0;
+uint16_t WRC_RailcomDriver::s_ch2Adresse = 0;
 
 /* ---------------------------------------------------------------------------
  * INIT
@@ -24,8 +32,6 @@ void WRC_RailcomDriver::Begin()
 
     WRC_CutoutDetector::Begin();
 
-    // ⚠️ OBLIGATOIRE : installer le service ISR
-    // Compatible ESP32 classique et ESP32‑C3
     gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
 
     gpio_set_direction(WRC_Pins::RAILCOM_IN, GPIO_MODE_INPUT);
@@ -36,7 +42,6 @@ void WRC_RailcomDriver::Begin()
     LOG_INFO("RailComDriver initialisé (GPIO %d)", WRC_Pins::RAILCOM_IN);
 }
 
-
 /* ---------------------------------------------------------------------------
  * ISR GPIO → capture transitions RailCom
  * ------------------------------------------------------------------------- */
@@ -46,10 +51,7 @@ void IRAM_ATTR WRC_RailcomDriver::isrRailcom(void* arg)
     uint32_t delta = maintenant - dernierFront;
     dernierFront = maintenant;
 
-    // Anti-spam : ignore les pulses trop rapides
     if (delta < 40) return;
-
-    // Anti-overflow
     if (nbTransitions >= 128) return;
 
     transitions[nbTransitions++] = delta;
@@ -63,6 +65,17 @@ void WRC_RailcomDriver::Loop()
     if (WRC_CutoutDetector::detecterCutout(dernierFront))
     {
         decoderTrame();
+
+        if (frameCourante.valide)
+        {
+            // Reconstruction adresse longue RailCom (Locoduino)
+            uint16_t adresseLongue = (s_ch2Adresse << 7) | s_ch1Adresse;
+
+            // Mise à jour de l’adresse du wagon
+            WRC_Settings::ADRESSE = adresseLongue;
+
+            LOG_INFO("Adresse RailCom détectée : %u", adresseLongue);
+        }
     }
 }
 
@@ -99,6 +112,9 @@ void WRC_RailcomDriver::decoderTrame()
 
     uint8_t canal = bits[0];
 
+    // -------------------------
+    // CANAL 1 → CH1 (adresse)
+    // -------------------------
     if (canal == 0)
     {
         frameCourante.canal = WRC_RailcomFrame::CANAL_1;
@@ -110,9 +126,15 @@ void WRC_RailcomDriver::decoderTrame()
         frameCourante.adresse = adresse;
         frameCourante.flags   = bits[8];
         frameCourante.valide  = true;
+
+        // Stockage CH1
+        s_ch1Adresse = adresse;
     }
     else
     {
+        // -------------------------
+        // CANAL 2 → CH2 (fxBits)
+        // -------------------------
         frameCourante.canal = WRC_RailcomFrame::CANAL_2;
 
         uint16_t fx = 0;
@@ -121,6 +143,9 @@ void WRC_RailcomDriver::decoderTrame()
 
         frameCourante.fxBits = fx;
         frameCourante.valide = true;
+
+        // Stockage CH2
+        s_ch2Adresse = fx;
     }
 
     frameDisponible = true;

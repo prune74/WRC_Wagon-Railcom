@@ -3,6 +3,11 @@
 #include "WRC_Settings.h"
 #include "WRC_Pins.h"
 
+// ⭐ États dynamiques pilotés par le DCC
+extern bool FX_ACTIVE_FEU_ARRIERE;
+extern bool FX_ACTIVE_LUMIERE_INTERIEURE;
+extern bool FX_ACTIVE_SERVO_PORTE;
+
 class WRC_FXDriver
 {
 public:
@@ -13,15 +18,8 @@ public:
     static void mettreAJourFx();
 
 private:
-    // Fonctions FX: à ajouter à chaque fonction nouvelle
+    // ⭐ 3 FX fixes — plus de structure dynamique
     static void appliquerLedArriere(bool actif);
     static void appliquerLedInterieure(bool actif);
     static void appliquerServoPorte(bool actif);
-
-    // Structure pour associer un FX à une fonction
-    struct FxBehavior {
-        void (*func)(bool actif);
-    };
-
-    static FxBehavior FX_BEHAVIORS[];
 };

@@ -61,6 +61,9 @@ namespace WRC_Pins
     // Entrée RailCom (sortie comparateur TLV3501)
     static const gpio_num_t RAILCOM_IN = GPIO_NUM_4;
 
+    // Sortie RailCom (émission CH1)
+    static const gpio_num_t RAILCOM_OUT = GPIO_NUM_3;
+
     // Mesure tension voie (optionnel, ADC)
     static const gpio_num_t TRACK_ADC  = GPIO_NUM_5;
 

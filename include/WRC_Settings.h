@@ -1,37 +1,24 @@
 #pragma once
 #include <stdint.h>
-#include <vector>
 
 class WRC_Settings
 {
 public:
+    // Paramètres généraux
     static bool WIFI_ACTIF;
     static uint16_t ADRESSE;
 
-    struct FxItem
-    {
-        const char *jsonName;
-        bool *value;
-    };
+    // Servo porte
+    static uint16_t SERVO_PORTE_ANGLE_OUVERT;
+    static uint16_t SERVO_PORTE_ANGLE_FERME;
+    static uint16_t SERVO_PORTE_VITESSE;
 
-    // ---------------------------------------------------------
-    // Déclarations générées automatiquement
-    // ---------------------------------------------------------
-    #define FX_ENTRY(NAME, JSON, FUNC) \
-        static bool FX_##NAME;         \
-        static FxItem FX_ITEM_##NAME;
+    // Fonctions FX:
+    static bool FEU_ARRIERE;
+    static bool LUMIERE_INTERIEURE;
+    static bool SERVO_PORTE;
 
-    #include "WRC_FX.inc"
-    #undef FX_ENTRY
-
-    // ---------------------------------------------------------
-    // Tableau FX_LIST
-    // ---------------------------------------------------------
-    static FxItem *FX_LIST[];
-    static size_t FX_COUNT;
-
-    static std::vector<uint16_t> ADRESSES_CONNUES;
-
+    // Fonctions
     static void Begin();
     static void readFile();
     static void writeFile();

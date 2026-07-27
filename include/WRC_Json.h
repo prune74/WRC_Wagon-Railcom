@@ -5,9 +5,15 @@
 class WRC_Json
 {
 public:
+    // Construction du JSON complet
     static String construireJsonParametres();
 
+    // Lecture des paramètres simples
     static bool lireAdresse(const String &json, uint16_t &adresse);
     static bool lireWifi(const String &json, bool &wifi_actif);
-    static bool lireFx(const String &json, bool &feu_arriere, bool &lumiere_interieure, bool &servo_porte);
+
+    // ⭐ Lecture des FX (une fonction par FX)
+    static bool lireFeuArriere(const String &json, bool &FxFeuArriere_actif);
+    static bool lireLumiereInterieure(const String &json, bool &FxLumiereInterieure_actif);
+    static bool lireServoPorteFx(const String &json, bool &FxServoPorte_actif);
 };

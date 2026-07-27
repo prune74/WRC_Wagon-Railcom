@@ -1,15 +1,14 @@
 #include "WRC_FXDriver.h"
+#include "WRC_ServoDriver.h"
 #include "WRC_Debug.h"
+#include "WRC_Settings.h"
 
 // ---------------------------------------------------------------------------
-// Définition de la table FX_BEHAVIORS
+// VARIABLES DYNAMIQUES PILOTÉES PAR LE DCC
 // ---------------------------------------------------------------------------
-#define FX_ENTRY(NAME, JSON, FUNC) { &WRC_FXDriver::FUNC },
-
-WRC_FXDriver::FxBehavior WRC_FXDriver::FX_BEHAVIORS[] = {
-    #include "WRC_FX.inc"
-};
-#undef FX_ENTRY
+bool FX_ACTIVE_FEU_ARRIERE = false;
+bool FX_ACTIVE_LUMIERE_INTERIEURE = false;
+bool FX_ACTIVE_SERVO_PORTE = false;
 
 // ---------------------------------------------------------------------------
 // INITIALISATION
@@ -22,6 +21,8 @@ void WRC_FXDriver::Begin()
 
     gpio_set_direction(WRC_Pins::LED_STATUS, GPIO_MODE_OUTPUT);
 
+    WRC_ServoDriver::Begin();
+
     mettreAJourFx();
 
     LOG_INFO("FXDriver initialisé");
@@ -29,20 +30,17 @@ void WRC_FXDriver::Begin()
 
 void WRC_FXDriver::Loop()
 {
-    // Pour l’instant, pas d’animations complexes
-    // Tu pourras ajouter des effets ici plus tard
+    WRC_ServoDriver::update();
 }
 
 // ---------------------------------------------------------------------------
-// METTRE À JOUR FX (DYNAMIQUE)
+// METTRE À JOUR FX — VERSION DYNAMIQUE (pilotée par le DCC)
 // ---------------------------------------------------------------------------
 void WRC_FXDriver::mettreAJourFx()
 {
-    for (size_t i = 0; i < WRC_Settings::FX_COUNT; i++)
-    {
-        bool actif = *(WRC_Settings::FX_LIST[i]->value);
-        FX_BEHAVIORS[i].func(actif);
-    }
+    appliquerLedArriere(FX_ACTIVE_FEU_ARRIERE);
+    appliquerLedInterieure(FX_ACTIVE_LUMIERE_INTERIEURE);
+    appliquerServoPorte(FX_ACTIVE_SERVO_PORTE);
 }
 
 /* ---------------------------------------------------------------------------
@@ -66,6 +64,8 @@ void WRC_FXDriver::appliquerLedInterieure(bool actif)
  * ------------------------------------------------------------------------- */
 void WRC_FXDriver::appliquerServoPorte(bool actif)
 {
-    // Pour l’instant : ON/OFF simple
-    gpio_set_level(WRC_FxPins::SERVO_DOOR, actif ? 1 : 0);
+    if (actif)
+        WRC_ServoDriver::ouvrirPorte();
+    else
+        WRC_ServoDriver::fermerPorte();
 }

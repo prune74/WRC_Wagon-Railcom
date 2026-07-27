@@ -3,35 +3,18 @@
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 
-bool     WRC_Settings::WIFI_ACTIF = true;
-uint16_t WRC_Settings::ADRESSE    = 4001;
+bool WRC_Settings::WIFI_ACTIF = true;
+uint16_t WRC_Settings::ADRESSE = 4001;
 
-// ---------------------------------------------------------
-// Définitions générées automatiquement
-// ---------------------------------------------------------
-#define FX_ENTRY(NAME, JSON, FUNC) \
-    bool WRC_Settings::FX_##NAME = false; \
-    WRC_Settings::FxItem WRC_Settings::FX_ITEM_##NAME = { JSON, &WRC_Settings::FX_##NAME };
+uint16_t WRC_Settings::SERVO_PORTE_ANGLE_OUVERT = 160;
+uint16_t WRC_Settings::SERVO_PORTE_ANGLE_FERME = 20;
+uint16_t WRC_Settings::SERVO_PORTE_VITESSE = 3;
 
-#include "WRC_FX.inc"
-#undef FX_ENTRY
+// ⭐ 3 FX fixes
+bool WRC_Settings::FEU_ARRIERE = false;
+bool WRC_Settings::LUMIERE_INTERIEURE = false;
+bool WRC_Settings::SERVO_PORTE = false;
 
-// ---------------------------------------------------------
-// Tableau FX_LIST généré automatiquement
-// ---------------------------------------------------------
-#define FX_ENTRY(NAME, JSON, FUNC) &WRC_Settings::FX_ITEM_##NAME,
-
-WRC_Settings::FxItem* WRC_Settings::FX_LIST[] = {
-    #include "WRC_FX.inc"
-};
-
-#undef FX_ENTRY
-
-size_t WRC_Settings::FX_COUNT = sizeof(WRC_Settings::FX_LIST) / sizeof(FxItem*);
-
-// ---------------------------------------------------------
-// JSON + SPIFFS
-// ---------------------------------------------------------
 void WRC_Settings::Begin()
 {
     if (!SPIFFS.begin(true))
@@ -63,27 +46,34 @@ void WRC_Settings::readFile()
     file.close();
 
     WIFI_ACTIF = doc["wifi_actif"] | WIFI_ACTIF;
-    ADRESSE    = doc["adresse"]    | ADRESSE;
+    ADRESSE = doc["adresse"] | ADRESSE;
 
-    JsonObject fx = doc["fx"];
-    if (!fx.isNull())
-    {
-        for (size_t i = 0; i < FX_COUNT; i++)
-            *(FX_LIST[i]->value) = fx[FX_LIST[i]->jsonName] | *(FX_LIST[i]->value);
-    }
+    SERVO_PORTE_ANGLE_OUVERT = doc["servo_porte_angle_ouvert"] | SERVO_PORTE_ANGLE_OUVERT;
+    SERVO_PORTE_ANGLE_FERME = doc["servo_porte_angle_ferme"] | SERVO_PORTE_ANGLE_FERME;
+    SERVO_PORTE_VITESSE = doc["servo_porte_vitesse"] | SERVO_PORTE_VITESSE;
+
+    // ⭐ 3 FX fixes
+    FEU_ARRIERE = doc["feu_arriere"] | FEU_ARRIERE;
+    LUMIERE_INTERIEURE = doc["lumiere_interieure"] | LUMIERE_INTERIEURE;
+    SERVO_PORTE = doc["servo_porte"] | SERVO_PORTE;
 }
 
 void WRC_Settings::writeFile()
 {
     JsonDocument doc;
     JsonObject root = doc.to<JsonObject>();
-    JsonObject fx   = root["fx"].to<JsonObject>();
 
     root["wifi_actif"] = WIFI_ACTIF;
-    root["adresse"]    = ADRESSE;
+    root["adresse"] = ADRESSE;
 
-    for (size_t i = 0; i < FX_COUNT; i++)
-        fx[FX_LIST[i]->jsonName] = *(FX_LIST[i]->value);
+    root["servo_porte_angle_ouvert"] = SERVO_PORTE_ANGLE_OUVERT;
+    root["servo_porte_angle_ferme"] = SERVO_PORTE_ANGLE_FERME;
+    root["servo_porte_vitesse"] = SERVO_PORTE_VITESSE;
+
+    // ⭐ 3 FX fixes
+    root["feu_arriere"] = FEU_ARRIERE;
+    root["lumiere_interieure"] = LUMIERE_INTERIEURE;
+    root["servo_porte"] = SERVO_PORTE;
 
     File file = SPIFFS.open("/Settings.json", "w");
     if (!file)

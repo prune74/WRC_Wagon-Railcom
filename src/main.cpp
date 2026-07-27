@@ -4,6 +4,9 @@
 #include "WRC_FXDriver.h"
 #include "WRC_WebHandler.h"
 #include "WRC_RailcomDriver.h"
+#include "WRC_RailcomEmitter.h"
+#include "WRC_DCCDecoder.h"
+#include "WRC_DCCHandler.h"
 
 static uint32_t lastLog = 0;
 
@@ -27,6 +30,12 @@ void setup()
     WRC_RailcomDriver::Begin();
     Serial.println("RailcomDriver OK");
 
+    WRC_RailcomEmitter::Begin(WRC_Settings::ADRESSE);
+    Serial.println("RailcomEmitter OK");
+
+    WRC_DCCDecoder::Begin();
+    Serial.println("DCCDecoder OK");
+
     Serial.println("SETUP FINI");
 }
 
@@ -38,8 +47,14 @@ void loop()
     // FX animations
     WRC_FXDriver::Loop();
 
-    // RailCom désactivé pour test de stabilité
-    // WRC_RailcomDriver::Loop();
+    // DCC decoder
+    WRC_DCCDecoder::Loop();
+
+    // RailCom emitter (activé par F27/F28)
+    WRC_RailcomEmitter::Loop();
+
+    // RailCom receiver
+    WRC_RailcomDriver::Loop();
 
     // Log non bloquant toutes les 1000 ms
     uint32_t now = millis();

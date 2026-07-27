@@ -93,23 +93,23 @@ input[type="checkbox"] {
  * ==========================================================================*/
 
 .json-key {
-    color: #4FC3F7;   /* bleu clair */
+    color: #4FC3F7;
 }
 
 .json-string {
-    color: #81C784;   /* vert */
+    color: #81C784;
 }
 
 .json-number {
-    color: #FFB74D;   /* orange */
+    color: #FFB74D;
 }
 
 .json-boolean {
-    color: #CE93D8;   /* violet */
+    color: #CE93D8;
 }
 
 .json-null {
-    color: #B0BEC5;   /* gris */
+    color: #B0BEC5;
 }
 
 /* ============================================================================
@@ -117,7 +117,7 @@ input[type="checkbox"] {
  * ==========================================================================*/
 
 .btn-danger {
-    background-color: #e53935;   /* rouge moderne */
+    background-color: #e53935;
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -127,5 +127,27 @@ input[type="checkbox"] {
 }
 
 .btn-danger:hover {
-    background-color: #ef5350;   /* rouge clair au survol */
+    background-color: #ef5350;
 }
+
+/* ============================================================================
+ * Section Servo Porte
+ * ==========================================================================*/
+
+#servo_porte_angle_ouvert,
+#servo_porte_angle_ferme,
+#servo_porte_vitesse {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 6px 10px;
+}
+
+#servo_porte_angle_ouvert:focus,
+#servo_porte_angle_ferme:focus,
+#servo_porte_vitesse:focus {
+    border-color: #00bcd4;
+    outline: none;
+}
+

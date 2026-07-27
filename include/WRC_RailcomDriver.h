@@ -23,4 +23,8 @@ private:
 
     static WRC_RailcomFrame frameCourante;
     static bool frameDisponible;
+
+    // Ajout pour adresses longues RailCom (CH1 + CH2)
+    static uint16_t s_ch1Adresse;
+    static uint16_t s_ch2Adresse;
 };

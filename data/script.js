@@ -41,24 +41,15 @@ function chargerParametres() {
             document.getElementById("adresse").value = p.adresse;
             document.getElementById("wifi_actif").checked = p.wifi_actif;
 
-            // ⭐ Génération dynamique des FX
-            const fxContainer = document.getElementById("fxContainer");
-            fxContainer.innerHTML = "";
+            // ⭐ Paramètres servo
+            document.getElementById("servo_porte_angle_ouvert").value = p.servo_porte_angle_ouvert;
+            document.getElementById("servo_porte_angle_ferme").value = p.servo_porte_angle_ferme;
+            document.getElementById("servo_porte_vitesse").value = p.servo_porte_vitesse;
 
-            for (const key in p.fx) {
-                fxContainer.innerHTML += `
-                    <div class="form-grid-2col">
-                        <label>${key.replace(/_/g, " ")} :</label>
-                        <input id="${key}" type="checkbox" class="fx-checkbox">
-                    </div>
-                `;
-            }
-
-            // ⭐ Mise à jour des valeurs
-            for (const key in p.fx) {
-                const el = document.getElementById(key);
-                if (el) el.checked = p.fx[key];
-            }
+            // ⭐ FX fixes
+            document.getElementById("feu_arriere").checked = p.feu_arriere;
+            document.getElementById("lumiere_interieure").checked = p.lumiere_interieure;
+            document.getElementById("servo_porte").checked = p.servo_porte;
 
             document.getElementById("jsonDebug").innerHTML =
                 colorizeJson(p);
@@ -117,12 +108,12 @@ function definirAdresse() {
         method: "POST",
         body: JSON.stringify({ adresse })
     })
-    .then(r => {
-        if (!r.ok) {
-            return r.text().then(msg => afficherErreur(msg));
-        }
-        chargerParametres();
-    });
+        .then(r => {
+            if (!r.ok) {
+                return r.text().then(msg => afficherErreur(msg));
+            }
+            chargerParametres();
+        });
 }
 
 /* ---------------------------------------------------------------------------
@@ -135,26 +126,65 @@ function definirWifi() {
         method: "POST",
         body: JSON.stringify({ wifi_actif })
     })
-    .then(() => chargerParametres());
+        .then(() => chargerParametres());
 }
 
 /* ---------------------------------------------------------------------------
- * DÉFINIR FX
+ * DÉFINIR FX — version simple (3 FX fixes)
  * ------------------------------------------------------------------------- */
-function definirFx() {
-    const fx = {};
+function definirFxFeuArriere() {
+    const feu_arriere = document.getElementById("feu_arriere").checked;
 
-    // ⭐ FX dynamiques
-    document.querySelectorAll(".fx-checkbox").forEach(el => {
-        fx[el.id] = el.checked;
-    });
-
-    fetch("/definirFx", {
+    fetch("/definirFxFeuArriere", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fx })
+        body: JSON.stringify({ feu_arriere })
     })
-    .then(() => chargerParametres());
+        .then(() => chargerParametres());
+}
+
+function definirFxLumiereInterieure() {
+    const lumiere_interieure = document.getElementById("lumiere_interieure").checked;
+
+    fetch("/definirFxLumiereInterieure", {
+        method: "POST",
+        body: JSON.stringify({ lumiere_interieure })
+    })
+        .then(() => chargerParametres());
+}
+
+function definirFxServoPorte() {
+    const servo_porte = document.getElementById("servo_porte").checked;
+
+    fetch("/definirFxServoPorte", {
+        method: "POST",
+        body: JSON.stringify({ servo_porte })
+    })
+        .then(() => chargerParametres());
+}
+
+/* ---------------------------------------------------------------------------
+ * SAUVEGARDE SERVO
+ * ------------------------------------------------------------------------- */
+function sauvegardeServo() {
+
+    const servo_porte_angle_ouvert = parseInt(document.getElementById("servo_porte_angle_ouvert").value);
+    const servo_porte_angle_ferme  = parseInt(document.getElementById("servo_porte_angle_ferme").value);
+    const servo_porte_vitesse      = parseInt(document.getElementById("servo_porte_vitesse").value);
+
+    fetch("/definirServoPorteParametres", {
+        method: "POST",
+        body: JSON.stringify({
+            servo_porte_angle_ouvert,
+            servo_porte_angle_ferme,
+            servo_porte_vitesse
+        })
+    })
+    .then(r => {
+        if (!r.ok) {
+            return r.text().then(msg => alert("Erreur servo : " + msg));
+        }
+        chargerParametres();
+    })
 }
 
 /* ---------------------------------------------------------------------------
@@ -180,30 +210,34 @@ function resetParametres() {
     fetch("/resetParametres", {
         method: "POST"
     })
-    .then(r => {
-        if (!r.ok) {
-            return r.text().then(msg => alert("Erreur reset : " + msg));
-        }
-        // On recharge les paramètres après reset
-        chargerParametres();
-    })
-    .catch(err => {
-        alert("Erreur réseau lors du reset : " + err);
-    });
+        .then(r => {
+            if (!r.ok) {
+                return r.text().then(msg => alert("Erreur reset : " + msg));
+            }
+            chargerParametres();
+        })
+        .catch(err => {
+            alert("Erreur réseau lors du reset : " + err);
+        });
 }
 
 /* ---------------------------------------------------------------------------
- * SAUVEGARDE GENERALE
+ * SAUVEGARDE GENERALE — version simple (3 FX fixes)
  * ------------------------------------------------------------------------- */
 function sauvegardeGenerale() {
 
     const adresse = parseInt(document.getElementById("adresse").value);
     const wifi_actif = document.getElementById("wifi_actif").checked;
 
-    const fx = {};
-    document.querySelectorAll(".fx-checkbox").forEach(el => {
-        fx[el.id] = el.checked;
-    });
+    // Paramètres servo
+    const servo_porte_angle_ouvert = parseInt(document.getElementById("servo_porte_angle_ouvert").value);
+    const servo_porte_angle_ferme = parseInt(document.getElementById("servo_porte_angle_ferme").value);
+    const servo_porte_vitesse = parseInt(document.getElementById("servo_porte_vitesse").value);
+
+    // ⭐ FX fixes
+    const feu_arriere = document.getElementById("feu_arriere").checked;
+    const lumiere_interieure = document.getElementById("lumiere_interieure").checked;
+    const servo_porte = document.getElementById("servo_porte").checked;
 
     fetch("/sauvegardeGenerale", {
         method: "POST",
@@ -211,15 +245,20 @@ function sauvegardeGenerale() {
         body: JSON.stringify({
             adresse,
             wifi_actif,
-            fx
+            servo_porte_angle_ouvert,
+            servo_porte_angle_ferme,
+            servo_porte_vitesse,
+            feu_arriere,
+            lumiere_interieure,
+            servo_porte
         })
     })
-    .then(r => {
-        if (!r.ok) {
-            return r.text().then(msg => alert("Erreur sauvegarde : " + msg));
-        }
-        alert("Sauvegarde effectuée !");
-        chargerParametres();
-    })
-    .catch(err => alert("Erreur réseau : " + err));
+        .then(r => {
+            if (!r.ok) {
+                return r.text().then(msg => alert("Erreur sauvegarde : " + msg));
+            }
+            alert("Sauvegarde effectuée !");
+            chargerParametres();
+        })
+        .catch(err => alert("Erreur réseau : " + err));
 }

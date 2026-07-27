@@ -19,10 +19,9 @@
             <h4>Adresse RailCom</h4>
             <div class="form-grid-2col">
                 <label>Adresse :</label>
-                <input id="adresse" type="number" min="1" max="10239">
+                <input id="adresse" type="number" min="4001" max="4999">
             </div>
 
-            <!-- Message d’erreur adresse -->
             <div id="msgErreurAdresse" style="display:none; margin-top:8px; font-size:14px;"></div>
 
             <div class="button-row">
@@ -43,13 +42,63 @@
             </div>
         </div>
 
-        <!-- Carte FX -->
+        <!-- FX Feu arrière -->
         <div class="card">
-            <h4>Effets (FX)</h4>
-            <div id="fxContainer"></div>
+            <h4>FX – Feu arrière</h4>
+            <div class="form-grid-2col">
+                <label>Actif :</label>
+                <input id="feu_arriere" type="checkbox">
+            </div>
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirFxFeuArriere()">Enregistrer</button>
+            </div>
+        </div>
+
+        <!-- FX Lumière intérieure -->
+        <div class="card">
+            <h4>FX – Lumière intérieure</h4>
+            <div class="form-grid-2col">
+                <label>Actif :</label>
+                <input id="lumiere_interieure" type="checkbox">
+            </div>
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirFxLumiereInterieure()">Enregistrer</button>
+            </div>
+        </div>
+
+        <!-- FX Servo porte -->
+        <div class="card">
+            <h4>FX – Servo porte</h4>
+            <div class="form-grid-2col">
+                <label>Actif :</label>
+                <input id="servo_porte" type="checkbox">
+            </div>
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirFxServoPorte()">Enregistrer</button>
+            </div>
+        </div>
+
+        <!-- Carte Servo Porte -->
+        <div class="card">
+            <h4>Servo Porte</h4>
+
+            <div class="form-grid-2col">
+                <label>Angle ouvert :</label>
+                <input id="servo_porte_angle_ouvert" type="number" min="0" max="180">
+            </div>
+
+            <div class="form-grid-2col">
+                <label>Angle fermé :</label>
+                <input id="servo_porte_angle_ferme" type="number" min="0" max="180">
+            </div>
+
+            <div class="form-grid-2col">
+                <label>Vitesse :</label>
+                <input id="servo_porte_vitesse" type="number" min="1" max="20">
+            </div>
 
             <div class="button-row">
-                <button class="btn-primary" onclick="definirFx()">Enregistrer</button>
+                <button class="btn-primary" onclick="sauvegardeServo()">Enregistrer</button>
             </div>
         </div>
 

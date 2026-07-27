@@ -1,9 +1,10 @@
 {
   "adresse": 4001,
   "wifi_actif": true,
-  "fx": {
-    "feu_arriere": false,
-    "lumiere_interieure": true,
-    "servo_porte": false
-  }
+  "servo_porte_angle_ouvert": 160,
+  "servo_porte_angle_ferme": 20,
+  "servo_porte_vitesse": 3,
+  "feu_arriere": false,
+  "lumiere_interieure": true,
+  "servo_porte": true
 }
