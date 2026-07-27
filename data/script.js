@@ -62,6 +62,9 @@ function chargerParametres() {
                 document.getElementById("essieux2").checked = true;
             }
 
+            // TYPE WAGON
+            document.getElementById("type_wagon").value = p.type_wagon;
+
             // DEBUG
             document.getElementById("jsonDebug").innerHTML =
                 colorizeJson(p);
@@ -224,6 +227,23 @@ function definirEssieux() {
 }
 
 /* ---------------------------------------------------------------------------
+ * DEFINIR TYPE WAGON
+ * ------------------------------------------------------------------------- */
+function definirTypeWagon() {
+    const type_wagon = document.getElementById("type_wagon").value;
+
+    fetch("/definirTypeWagon", {
+        method: "POST",
+        body: JSON.stringify({ type_wagon })
+    })
+    .then(r => {
+        if (!r.ok) return r.text().then(msg => alert("Erreur type wagon : " + msg));
+        chargerParametres();
+    })
+    .catch(err => alert("Erreur réseau type wagon : " + err));
+}
+
+/* ---------------------------------------------------------------------------
  * WEBSOCKET RAILCOM
  * ------------------------------------------------------------------------- */
 function initWebSocket() {
@@ -280,6 +300,9 @@ function sauvegardeGenerale() {
     // false = 2 essieux
     // true  = 4 essieux
 
+    // TYPE WAGON
+    const type_wagon = document.getElementById("type_wagon").value;
+
     fetch("/sauvegardeGenerale", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -292,7 +315,8 @@ function sauvegardeGenerale() {
             feu_arriere,
             lumiere_interieure,
             servo_porte,
-            essieux
+            essieux,
+            type_wagon
         })
     })
         .then(r => {

@@ -3,18 +3,20 @@
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 
-bool WRC_Settings::WIFI_ACTIF = true;
-uint16_t WRC_Settings::ADRESSE = 4001;
+bool WRC_Settings::WIFI_ACTIF                   = true;
+uint16_t WRC_Settings::ADRESSE                  = 4001;
 
 uint16_t WRC_Settings::SERVO_PORTE_ANGLE_OUVERT = 160;
-uint16_t WRC_Settings::SERVO_PORTE_ANGLE_FERME = 20;
-uint16_t WRC_Settings::SERVO_PORTE_VITESSE = 3;
+uint16_t WRC_Settings::SERVO_PORTE_ANGLE_FERME  = 20;
+uint16_t WRC_Settings::SERVO_PORTE_VITESSE      = 3;
 
-bool WRC_Settings::FEU_ARRIERE = false;
-bool WRC_Settings::LUMIERE_INTERIEURE = false;
-bool WRC_Settings::SERVO_PORTE = false;
+bool WRC_Settings::FEU_ARRIERE                  = false;
+bool WRC_Settings::LUMIERE_INTERIEURE           = false;
+bool WRC_Settings::SERVO_PORTE                  = false;
 
-bool WRC_Settings::ESSIEUX = false;
+bool WRC_Settings::ESSIEUX                      = false;
+
+String WRC_Settings::TYPE_WAGON                 = "autre";
 
 void WRC_Settings::Begin()
 {
@@ -46,18 +48,20 @@ void WRC_Settings::readFile()
     }
     file.close();
 
-    WIFI_ACTIF = doc["wifi_actif"] | WIFI_ACTIF;
-    ADRESSE = doc["adresse"] | ADRESSE;
+    WIFI_ACTIF               = doc["wifi_actif"]                | WIFI_ACTIF;
+    ADRESSE                  = doc["adresse"]                   | ADRESSE;
 
-    SERVO_PORTE_ANGLE_OUVERT = doc["servo_porte_angle_ouvert"] | SERVO_PORTE_ANGLE_OUVERT;
-    SERVO_PORTE_ANGLE_FERME = doc["servo_porte_angle_ferme"] | SERVO_PORTE_ANGLE_FERME;
-    SERVO_PORTE_VITESSE = doc["servo_porte_vitesse"] | SERVO_PORTE_VITESSE;
+    SERVO_PORTE_ANGLE_OUVERT = doc["servo_porte_angle_ouvert"]  | SERVO_PORTE_ANGLE_OUVERT;
+    SERVO_PORTE_ANGLE_FERME  = doc["servo_porte_angle_ferme"]   | SERVO_PORTE_ANGLE_FERME;
+    SERVO_PORTE_VITESSE      = doc["servo_porte_vitesse"]       | SERVO_PORTE_VITESSE;
 
-    FEU_ARRIERE = doc["feu_arriere"] | FEU_ARRIERE;
-    LUMIERE_INTERIEURE = doc["lumiere_interieure"] | LUMIERE_INTERIEURE;
-    SERVO_PORTE = doc["servo_porte"] | SERVO_PORTE;
+    FEU_ARRIERE              = doc["feu_arriere"]               | FEU_ARRIERE;
+    LUMIERE_INTERIEURE       = doc["lumiere_interieure"]        | LUMIERE_INTERIEURE;
+    SERVO_PORTE              = doc["servo_porte"]               | SERVO_PORTE;
 
-    ESSIEUX = doc["essieux"] | ESSIEUX;
+    ESSIEUX                  = doc["essieux"]                   | ESSIEUX;
+    TYPE_WAGON               = doc["type_wagon"]                | TYPE_WAGON;
+
 }
 
 void WRC_Settings::writeFile()
@@ -68,15 +72,16 @@ void WRC_Settings::writeFile()
     root["wifi_actif"] = WIFI_ACTIF;
     root["adresse"] = ADRESSE;
 
-    root["servo_porte_angle_ouvert"] = SERVO_PORTE_ANGLE_OUVERT;
-    root["servo_porte_angle_ferme"] = SERVO_PORTE_ANGLE_FERME;
-    root["servo_porte_vitesse"] = SERVO_PORTE_VITESSE;
+    root["servo_porte_angle_ouvert"]    = SERVO_PORTE_ANGLE_OUVERT;
+    root["servo_porte_angle_ferme"]     = SERVO_PORTE_ANGLE_FERME;
+    root["servo_porte_vitesse"]         = SERVO_PORTE_VITESSE;
 
-    root["feu_arriere"] = FEU_ARRIERE;
-    root["lumiere_interieure"] = LUMIERE_INTERIEURE;
-    root["servo_porte"] = SERVO_PORTE;
+    root["feu_arriere"]                 = FEU_ARRIERE;
+    root["lumiere_interieure"]          = LUMIERE_INTERIEURE;
+    root["servo_porte"]                 = SERVO_PORTE;
 
-    root["essieux"] = WRC_Settings::ESSIEUX;
+    root["essieux"]                     = ESSIEUX;
+    root["type_wagon"]                  = TYPE_WAGON;
 
     File file = SPIFFS.open("/Settings.json", "w");
     if (!file)

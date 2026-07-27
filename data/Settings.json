@@ -7,5 +7,6 @@
   "feu_arriere": false,
   "lumiere_interieure": false,
   "servo_porte": false,
-  "essieux": false
+  "essieux": false,
+  "type_wagon": "autre"
 }

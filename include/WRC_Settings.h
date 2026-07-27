@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <arduino.h>
 
 class WRC_Settings
 {
@@ -8,9 +9,12 @@ public:
     static bool WIFI_ACTIF;
     static uint16_t ADRESSE;
 
-    // Information Wagon
+    // ESSIEUX
     static bool ESSIEUX;
     
+    // Type WAGON
+    static String TYPE_WAGON;
+
     // Servo porte
     static uint16_t SERVO_PORTE_ANGLE_OUVERT;
     static uint16_t SERVO_PORTE_ANGLE_FERME;

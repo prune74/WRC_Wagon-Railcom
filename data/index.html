@@ -84,7 +84,39 @@
                 <button class="btn-primary" onclick="definirEssieux()">Enregistrer</button>
             </div>
         </div>
-        
+
+        <!-- Carte TYPE WAGON -->
+        <div class="card">
+            <h4>Type de wagon</h4>
+
+            <div class="form-grid-2col">
+                <label>Type :</label>
+                <select id="type_wagon">
+                    <option value="wagon_bache">Wagon bâché</option>
+                    <option value="wagon_cerealier">Wagon céréalier</option>
+                    <option value="wagon_citerne">Wagon citerne</option>
+                    <option value="wagon_couvert">Wagon couvert</option>
+                    <option value="wagon_parois_coulissantes">Wagon à parois coulissantes</option>
+                    <option value="wagon_plat_rancher">Wagon plat & rancher</option>
+                    <option value="wagon_porte-autos">Wagon porte-autos</option>
+                    <option value="wagon_porte-char_militaire">Wagon porte-char & militaire</option> 
+                    <option value="wagon_porte-conteneurs">Wagon porte-conteneurs</option>
+                    <option value="wagon_tombereau">Wagon tombereau</option>
+                    <option value="wagon_travaux_speciaux">Wagon travaux & spéciaux</option>
+                    <option value="wagon_tremie_coke">Wagon trémie & coke</option>
+                    <option value="voiture_couchette">Voiture couchette</option>
+                    <option value="voiture_restaurant_bar">Voiture restaurant et bar</option>
+                    <option value="voiture_TGV">Voiture TGV</option>
+                    <option value="voiture_voyageurs">Voiture voyageurs</option>
+                    <option value="autre">Autre</option>
+                </select>
+            </div>
+
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirTypeWagon()">Enregistrer</button>
+            </div>
+        </div>
+
         <!-- Carte Servo Porte -->
         <div class="card">
             <h4>Servo Porte</h4>

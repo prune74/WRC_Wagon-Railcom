@@ -69,6 +69,7 @@ void WRC_WebHandler::definirRoutes()
         root["servo_porte"]        = WRC_Settings::SERVO_PORTE;
 
         root["essieux"] = WRC_Settings::ESSIEUX;
+        root["type_wagon"] = WRC_Settings::TYPE_WAGON;
 
         String out;
         serializeJson(doc, out);
@@ -155,7 +156,7 @@ void WRC_WebHandler::definirRoutes()
 
     /* -----------------------------------------------------------------------
      * POST /definirEssieux
-     * --------------------------------------------------------------------- */   
+     * --------------------------------------------------------------------- */
     serveur->on("/definirEssieux", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
                 {
     String body = String((char*)data).substring(0, len);
@@ -173,6 +174,48 @@ void WRC_WebHandler::definirRoutes()
     WRC_Settings::ESSIEUX = essieuxBool;
 
     WRC_Settings::writeFile();
+    req->send(200, "text/plain", "OK"); });
+
+    /* -----------------------------------------------------------------------
+     * POST /definirTypeWagon
+     * --------------------------------------------------------------------- */
+    serveur->on("/definirTypeWagon", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
+                {
+    String body = String((char*)data).substring(0, len);
+
+    JsonDocument doc;
+    if (deserializeJson(doc, body)) {
+        req->send(400, "text/plain", "JSON invalide");
+        return;
+    }
+
+    String type = doc["type_wagon"] | "";
+
+    if (type != "wagon_bache" &&
+        type != "wagon_cerealier" &&
+        type != "wagon_citerne" &&
+        type != "wagon_couvert" &&
+        type != "wagon_parois_coulissantes" &&
+        type != "wagon_plat_rancher" &&
+        type != "wagon_porte-autos" &&
+        type != "wagon_porte-char_militaire" &&
+        type != "wagon_porte-conteneurs" &&
+        type != "wagon_tombereau" &&
+        type != "wagon_travaux_speciaux" &&
+        type != "wagon_tremie_coke" &&
+        type != "voiture_couchette" &&
+        type != "voiture_restaurant_bar" &&
+        type != "voiture_TGV" &&
+        type != "voiture_voyageurs" &&
+        type != "autre")
+    {
+        req->send(400, "text/plain", "Type wagon invalide");
+        return;
+    }
+
+    WRC_Settings::TYPE_WAGON = type;
+    WRC_Settings::writeFile();
+
     req->send(200, "text/plain", "OK"); });
 
     /* -----------------------------------------------------------------------
@@ -199,7 +242,8 @@ void WRC_WebHandler::definirRoutes()
         WRC_Settings::LUMIERE_INTERIEURE = doc["lumiere_interieure"] | WRC_Settings::LUMIERE_INTERIEURE;
         WRC_Settings::SERVO_PORTE        = doc["servo_porte"]        | WRC_Settings::SERVO_PORTE;
 
-        WRC_Settings::ESSIEUX            = doc["essieux"]        | WRC_Settings::ESSIEUX;
+        WRC_Settings::ESSIEUX            = doc["essieux"]            | WRC_Settings::ESSIEUX;
+        WRC_Settings::TYPE_WAGON         = doc["type_wagon"]         | WRC_Settings::TYPE_WAGON;
 
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Sauvegarde OK"); });
@@ -221,6 +265,7 @@ void WRC_WebHandler::definirRoutes()
         WRC_Settings::SERVO_PORTE        = false;
 
         WRC_Settings::ESSIEUX            = false;
+        WRC_Settings::TYPE_WAGON         = "autre";
 
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Paramètres réinitialisés"); });
