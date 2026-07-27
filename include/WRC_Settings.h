@@ -15,6 +15,9 @@ public:
     // Type WAGON
     static String TYPE_WAGON;
 
+    // Longueur WAGON en mm
+    static uint16_t LONGUEUR_MM;
+
     // Servo porte
     static uint16_t SERVO_PORTE_ANGLE_OUVERT;
     static uint16_t SERVO_PORTE_ANGLE_FERME;

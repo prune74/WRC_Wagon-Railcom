@@ -15,8 +15,8 @@ bool WRC_Settings::LUMIERE_INTERIEURE           = false;
 bool WRC_Settings::SERVO_PORTE                  = false;
 
 bool WRC_Settings::ESSIEUX                      = false;
-
 String WRC_Settings::TYPE_WAGON                 = "autre";
+uint16_t WRC_Settings::LONGUEUR_MM              = 300;
 
 void WRC_Settings::Begin()
 {
@@ -61,7 +61,7 @@ void WRC_Settings::readFile()
 
     ESSIEUX                  = doc["essieux"]                   | ESSIEUX;
     TYPE_WAGON               = doc["type_wagon"]                | TYPE_WAGON;
-
+    LONGUEUR_MM              = doc["longueur_mm"]               | LONGUEUR_MM;
 }
 
 void WRC_Settings::writeFile()
@@ -82,6 +82,8 @@ void WRC_Settings::writeFile()
 
     root["essieux"]                     = ESSIEUX;
     root["type_wagon"]                  = TYPE_WAGON;
+    root["longueur_mm"]                 = LONGUEUR_MM;
+
 
     File file = SPIFFS.open("/Settings.json", "w");
     if (!file)

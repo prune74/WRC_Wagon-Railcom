@@ -8,5 +8,6 @@
   "lumiere_interieure": false,
   "servo_porte": false,
   "essieux": false,
-  "type_wagon": "autre"
+  "type_wagon": "autre",
+  "longueur_mm": 300
 }

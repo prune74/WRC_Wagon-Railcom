@@ -65,6 +65,9 @@ function chargerParametres() {
             // TYPE WAGON
             document.getElementById("type_wagon").value = p.type_wagon;
 
+            // LONGUEUR MM WAGON
+            document.getElementById("longueur_mm").value = p.longueur_mm;
+
             // DEBUG
             document.getElementById("jsonDebug").innerHTML =
                 colorizeJson(p);
@@ -236,11 +239,34 @@ function definirTypeWagon() {
         method: "POST",
         body: JSON.stringify({ type_wagon })
     })
-    .then(r => {
-        if (!r.ok) return r.text().then(msg => alert("Erreur type wagon : " + msg));
-        chargerParametres();
+        .then(r => {
+            if (!r.ok) return r.text().then(msg => alert("Erreur type wagon : " + msg));
+            chargerParametres();
+        })
+        .catch(err => alert("Erreur réseau type wagon : " + err));
+}
+
+/* ---------------------------------------------------------------------------
+ * DEFINIR LONGUEUR MM WAGON
+ * ------------------------------------------------------------------------- */
+function definirLongueurWagon() {
+    const longueur_mm = parseInt(document.getElementById("longueur_mm").value);
+
+    if (longueur_mm < 50 || longueur_mm > 500) {
+        alert("Longueur invalide (50–500 mm)");
+        return;
+    }
+
+    fetch("/definirLongueurWagon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ longueur_mm })
     })
-    .catch(err => alert("Erreur réseau type wagon : " + err));
+        .then(r => {
+            if (!r.ok) return r.text().then(msg => alert("Erreur longueur : " + msg));
+            chargerParametres();
+        })
+        .catch(err => alert("Erreur réseau longueur : " + err));
 }
 
 /* ---------------------------------------------------------------------------
@@ -303,6 +329,14 @@ function sauvegardeGenerale() {
     // TYPE WAGON
     const type_wagon = document.getElementById("type_wagon").value;
 
+    // LONGUEUR MM WAGON
+    const longueur_mm = parseInt(document.getElementById("longueur_mm").value);
+
+    if (longueur_mm < 50 || longueur_mm > 500) {
+        alert("Longueur invalide (50–500 mm)");
+        return;
+    }
+
     fetch("/sauvegardeGenerale", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -316,7 +350,8 @@ function sauvegardeGenerale() {
             lumiere_interieure,
             servo_porte,
             essieux,
-            type_wagon
+            type_wagon,
+            longueur_mm
         })
     })
         .then(r => {

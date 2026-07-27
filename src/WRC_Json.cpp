@@ -23,8 +23,10 @@ String WRC_Json::construireJsonParametres()
     root["lumiere_interieure"] = WRC_Settings::LUMIERE_INTERIEURE;
     root["servo_porte"] = WRC_Settings::SERVO_PORTE;
 
-    // Information Wagon
+    // Wagon
     root["essieux"] = WRC_Settings::ESSIEUX;
+    root["type_wagon"] = WRC_Settings::TYPE_WAGON;
+    root["longueur_mm"] = WRC_Settings::LONGUEUR_MM;
 
     String out;
     serializeJson(doc, out);
@@ -120,3 +122,4 @@ bool WRC_Json::lireEssieux(const String &json, bool &essieux)
     essieux = doc["essieux"].as<bool>();
     return true;
 }
+

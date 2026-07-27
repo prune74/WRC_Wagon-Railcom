@@ -57,19 +57,20 @@ void WRC_WebHandler::definirRoutes()
         JsonDocument doc;
         JsonObject root = doc.to<JsonObject>();
 
-        root["wifi_actif"] = WRC_Settings::WIFI_ACTIF;
-        root["adresse"]    = WRC_Settings::ADRESSE;
+        root["wifi_actif"]                  = WRC_Settings::WIFI_ACTIF;
+        root["adresse"]                     = WRC_Settings::ADRESSE;
 
-        root["servo_porte_angle_ouvert"] = WRC_Settings::SERVO_PORTE_ANGLE_OUVERT;
-        root["servo_porte_angle_ferme"]  = WRC_Settings::SERVO_PORTE_ANGLE_FERME;
-        root["servo_porte_vitesse"]      = WRC_Settings::SERVO_PORTE_VITESSE;
+        root["servo_porte_angle_ouvert"]    = WRC_Settings::SERVO_PORTE_ANGLE_OUVERT;
+        root["servo_porte_angle_ferme"]     = WRC_Settings::SERVO_PORTE_ANGLE_FERME;
+        root["servo_porte_vitesse"]         = WRC_Settings::SERVO_PORTE_VITESSE;
 
-        root["feu_arriere"]        = WRC_Settings::FEU_ARRIERE;
-        root["lumiere_interieure"] = WRC_Settings::LUMIERE_INTERIEURE;
-        root["servo_porte"]        = WRC_Settings::SERVO_PORTE;
+        root["feu_arriere"]                 = WRC_Settings::FEU_ARRIERE;
+        root["lumiere_interieure"]          = WRC_Settings::LUMIERE_INTERIEURE;
+        root["servo_porte"]                 = WRC_Settings::SERVO_PORTE;
 
-        root["essieux"] = WRC_Settings::ESSIEUX;
-        root["type_wagon"] = WRC_Settings::TYPE_WAGON;
+        root["essieux"]                     = WRC_Settings::ESSIEUX;
+        root["type_wagon"]                  = WRC_Settings::TYPE_WAGON;
+        root["longueur_mm"]                 = WRC_Settings::LONGUEUR_MM;
 
         String out;
         serializeJson(doc, out);
@@ -219,6 +220,31 @@ void WRC_WebHandler::definirRoutes()
     req->send(200, "text/plain", "OK"); });
 
     /* -----------------------------------------------------------------------
+     * POST /definirLongueurWagon
+     * --------------------------------------------------------------------- */
+    serveur->on("/definirLongueurWagon", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
+                {
+    String body = String((char*)data).substring(0, len);
+
+    JsonDocument doc;
+    if (deserializeJson(doc, body)) {
+        req->send(400, "text/plain", "JSON invalide");
+        return;
+    }
+
+    uint16_t longueur = doc["longueur_mm"] | 300;
+
+    if (longueur < 50 || longueur > 500) {
+        req->send(400, "text/plain", "Longueur invalide (50–500 mm)");
+        return;
+    }
+
+    WRC_Settings::LONGUEUR_MM = longueur;
+    WRC_Settings::writeFile();
+
+    req->send(200, "text/plain", "OK"); });
+
+    /* -----------------------------------------------------------------------
      * POST /sauvegardeGenerale
      * --------------------------------------------------------------------- */
     serveur->on("/sauvegardeGenerale", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
@@ -232,18 +258,19 @@ void WRC_WebHandler::definirRoutes()
         }
 
         WRC_Settings::ADRESSE = doc["adresse"] | WRC_Settings::ADRESSE;
-        WRC_Settings::WIFI_ACTIF = doc["wifi_actif"] | WRC_Settings::WIFI_ACTIF;
+        WRC_Settings::WIFI_ACTIF                = doc["wifi_actif"]                 | WRC_Settings::WIFI_ACTIF;
 
-        WRC_Settings::SERVO_PORTE_ANGLE_OUVERT = doc["servo_porte_angle_ouvert"] | WRC_Settings::SERVO_PORTE_ANGLE_OUVERT;
-        WRC_Settings::SERVO_PORTE_ANGLE_FERME  = doc["servo_porte_angle_ferme"]  | WRC_Settings::SERVO_PORTE_ANGLE_FERME;
-        WRC_Settings::SERVO_PORTE_VITESSE      = doc["servo_porte_vitesse"]      | WRC_Settings::SERVO_PORTE_VITESSE;
+        WRC_Settings::SERVO_PORTE_ANGLE_OUVERT  = doc["servo_porte_angle_ouvert"]   | WRC_Settings::SERVO_PORTE_ANGLE_OUVERT;
+        WRC_Settings::SERVO_PORTE_ANGLE_FERME   = doc["servo_porte_angle_ferme"]    | WRC_Settings::SERVO_PORTE_ANGLE_FERME;
+        WRC_Settings::SERVO_PORTE_VITESSE       = doc["servo_porte_vitesse"]        | WRC_Settings::SERVO_PORTE_VITESSE;
 
-        WRC_Settings::FEU_ARRIERE        = doc["feu_arriere"]        | WRC_Settings::FEU_ARRIERE;
-        WRC_Settings::LUMIERE_INTERIEURE = doc["lumiere_interieure"] | WRC_Settings::LUMIERE_INTERIEURE;
-        WRC_Settings::SERVO_PORTE        = doc["servo_porte"]        | WRC_Settings::SERVO_PORTE;
+        WRC_Settings::FEU_ARRIERE               = doc["feu_arriere"]                | WRC_Settings::FEU_ARRIERE;
+        WRC_Settings::LUMIERE_INTERIEURE        = doc["lumiere_interieure"]         | WRC_Settings::LUMIERE_INTERIEURE;
+        WRC_Settings::SERVO_PORTE               = doc["servo_porte"]                | WRC_Settings::SERVO_PORTE;
 
-        WRC_Settings::ESSIEUX            = doc["essieux"]            | WRC_Settings::ESSIEUX;
-        WRC_Settings::TYPE_WAGON         = doc["type_wagon"]         | WRC_Settings::TYPE_WAGON;
+        WRC_Settings::ESSIEUX                   = doc["essieux"]                    | WRC_Settings::ESSIEUX;
+        WRC_Settings::TYPE_WAGON                = doc["type_wagon"]                 | WRC_Settings::TYPE_WAGON;
+        WRC_Settings::LONGUEUR_MM               = doc["longueur_mm"]                | WRC_Settings::LONGUEUR_MM;
 
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Sauvegarde OK"); });
@@ -253,19 +280,20 @@ void WRC_WebHandler::definirRoutes()
      * --------------------------------------------------------------------- */
     serveur->on("/resetParametres", HTTP_POST, [](AsyncWebServerRequest *req)
                 {
-        WRC_Settings::WIFI_ACTIF = true;
-        WRC_Settings::ADRESSE    = 4001;
+        WRC_Settings::WIFI_ACTIF                = true;
+        WRC_Settings::ADRESSE                   = 4001;
 
-        WRC_Settings::SERVO_PORTE_ANGLE_OUVERT = 160;
-        WRC_Settings::SERVO_PORTE_ANGLE_FERME  = 20;
-        WRC_Settings::SERVO_PORTE_VITESSE      = 3;
+        WRC_Settings::SERVO_PORTE_ANGLE_OUVERT  = 160;
+        WRC_Settings::SERVO_PORTE_ANGLE_FERME   = 20;
+        WRC_Settings::SERVO_PORTE_VITESSE       = 3;
 
-        WRC_Settings::FEU_ARRIERE        = false;
-        WRC_Settings::LUMIERE_INTERIEURE = false;
-        WRC_Settings::SERVO_PORTE        = false;
+        WRC_Settings::FEU_ARRIERE               = false;
+        WRC_Settings::LUMIERE_INTERIEURE        = false;
+        WRC_Settings::SERVO_PORTE               = false;
 
-        WRC_Settings::ESSIEUX            = false;
-        WRC_Settings::TYPE_WAGON         = "autre";
+        WRC_Settings::ESSIEUX                   = false;
+        WRC_Settings::TYPE_WAGON                = "autre";
+        WRC_Settings::LONGUEUR_MM               = 300;
 
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Paramètres réinitialisés"); });
