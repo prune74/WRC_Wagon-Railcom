@@ -132,34 +132,28 @@ function definirWifi() {
 /* ---------------------------------------------------------------------------
  * DÉFINIR FX — version simple (3 FX fixes)
  * ------------------------------------------------------------------------- */
-function definirFxFeuArriere() {
-    const feu_arriere = document.getElementById("feu_arriere").checked;
+function definirFx() {
 
-    fetch("/definirFxFeuArriere", {
-        method: "POST",
-        body: JSON.stringify({ feu_arriere })
-    })
-        .then(() => chargerParametres());
-}
-
-function definirFxLumiereInterieure() {
+    const feu_arriere        = document.getElementById("feu_arriere").checked;
     const lumiere_interieure = document.getElementById("lumiere_interieure").checked;
+    const servo_porte        = document.getElementById("servo_porte").checked;
 
-    fetch("/definirFxLumiereInterieure", {
+    fetch("/definirFx", {
         method: "POST",
-        body: JSON.stringify({ lumiere_interieure })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            feu_arriere,
+            lumiere_interieure,
+            servo_porte
+        })
     })
-        .then(() => chargerParametres());
-}
-
-function definirFxServoPorte() {
-    const servo_porte = document.getElementById("servo_porte").checked;
-
-    fetch("/definirFxServoPorte", {
-        method: "POST",
-        body: JSON.stringify({ servo_porte })
+    .then(r => {
+        if (!r.ok) {
+            return r.text().then(msg => alert("Erreur FX : " + msg));
+        }
+        chargerParametres();
     })
-        .then(() => chargerParametres());
+    .catch(err => alert("Erreur réseau FX : " + err));
 }
 
 /* ---------------------------------------------------------------------------

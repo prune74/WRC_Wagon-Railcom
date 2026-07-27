@@ -5,6 +5,6 @@
   "servo_porte_angle_ferme": 20,
   "servo_porte_vitesse": 3,
   "feu_arriere": false,
-  "lumiere_interieure": true,
-  "servo_porte": true
+  "lumiere_interieure": false,
+  "servo_porte": false
 }

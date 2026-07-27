@@ -112,55 +112,22 @@ void WRC_WebHandler::definirRoutes()
         req->send(200, "text/plain", "OK"); });
 
     /* -----------------------------------------------------------------------
-     * POST /definirFxFeuArriere
+     * POST /definirFx
      * --------------------------------------------------------------------- */
-    serveur->on("/definirFxFeuArriere", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
+    serveur->on("/definirFx", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
                 {
     String body = String((char*)data).substring(0, len);
-    LOG_INFO("JSON FX reçu : %s", body.c_str());
 
-    bool Feu_Arriere_actif;
-    if (!WRC_Json::lireFeuArriere(body, Feu_Arriere_actif)) {
+    JsonDocument doc;
+    if (deserializeJson(doc, body)) {
         req->send(400, "text/plain", "JSON invalide");
         return;
     }
 
-    WRC_Settings::FEU_ARRIERE = Feu_Arriere_actif;
-    WRC_Settings::writeFile();
-    //WRC_FXDriver::mettreAJourFx();
-    req->send(200, "text/plain", "OK"); });
+    WRC_Settings::FEU_ARRIERE        = doc["feu_arriere"]        | WRC_Settings::FEU_ARRIERE;
+    WRC_Settings::LUMIERE_INTERIEURE = doc["lumiere_interieure"] | WRC_Settings::LUMIERE_INTERIEURE;
+    WRC_Settings::SERVO_PORTE        = doc["servo_porte"]        | WRC_Settings::SERVO_PORTE;
 
-    /* -----------------------------------------------------------------------
-     * POST /definirFxLumiereInterieure
-     * --------------------------------------------------------------------- */
-    serveur->on("/definirFxLumiereInterieure", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
-                {
-    String body = String((char*)data).substring(0, len);
-
-    bool lumiere_interieure_actif;
-    if (!WRC_Json::lireLumiereInterieure(body, lumiere_interieure_actif)) {
-        req->send(400, "text/plain", "JSON invalide");
-        return;
-    }
-
-    WRC_Settings::LUMIERE_INTERIEURE = lumiere_interieure_actif;
-    WRC_Settings::writeFile();
-    req->send(200, "text/plain", "OK"); });
-
-    /* -----------------------------------------------------------------------
-     * POST /definirFxServoPorte
-     * --------------------------------------------------------------------- */
-    serveur->on("/definirFxServoPorte", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
-                {
-    String body = String((char*)data).substring(0, len);
-
-    bool servo_porte_actif;
-    if (!WRC_Json::lireServoPorteFx(body, servo_porte_actif)) {
-        req->send(400, "text/plain", "JSON invalide");
-        return;
-    }
-
-    WRC_Settings::SERVO_PORTE = servo_porte_actif;
     WRC_Settings::writeFile();
     req->send(200, "text/plain", "OK"); });
 
