@@ -6,5 +6,6 @@
   "servo_porte_vitesse": 3,
   "feu_arriere": false,
   "lumiere_interieure": false,
-  "servo_porte": false
+  "servo_porte": false,
+  "essieux": false
 }

@@ -66,6 +66,25 @@
             </div>
         </div>
 
+        <!-- Carte ESSIEUX -->
+        <div class="card">
+            <h4>Données ferroviaires</h4>
+
+            <div class="form-grid-2col">
+                <label>2 essieux :</label>
+                <input id="essieux2" type="checkbox" onclick="choisirEssieux(2)">
+            </div>
+
+            <div class="form-grid-2col">
+                <label>4 essieux :</label>
+                <input id="essieux4" type="checkbox" onclick="choisirEssieux(4)">
+            </div>
+
+            <div class="button-row">
+                <button class="btn-primary" onclick="definirEssieux()">Enregistrer</button>
+            </div>
+        </div>
+        
         <!-- Carte Servo Porte -->
         <div class="card">
             <h4>Servo Porte</h4>
@@ -104,6 +123,7 @@
                 Chargement des paramètres...
             </pre>
         </div>
+
 
         <!-- Carte Reset / Sauvegarde -->
         <div class="card">

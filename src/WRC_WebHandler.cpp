@@ -68,6 +68,8 @@ void WRC_WebHandler::definirRoutes()
         root["lumiere_interieure"] = WRC_Settings::LUMIERE_INTERIEURE;
         root["servo_porte"]        = WRC_Settings::SERVO_PORTE;
 
+        root["essieux"] = WRC_Settings::ESSIEUX;
+
         String out;
         serializeJson(doc, out);
         req->send(200, "application/json", out); });
@@ -152,6 +154,28 @@ void WRC_WebHandler::definirRoutes()
     req->send(200, "text/plain", "OK"); });
 
     /* -----------------------------------------------------------------------
+     * POST /definirEssieux
+     * --------------------------------------------------------------------- */   
+    serveur->on("/definirEssieux", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
+                {
+    String body = String((char*)data).substring(0, len);
+
+    JsonDocument doc;
+    if (deserializeJson(doc, body)) {
+        req->send(400, "text/plain", "JSON invalide");
+        return;
+    }
+
+    bool essieuxBool = doc["essieux"] | false;
+
+    // false = 2 essieux
+    // true  = 4 essieux
+    WRC_Settings::ESSIEUX = essieuxBool;
+
+    WRC_Settings::writeFile();
+    req->send(200, "text/plain", "OK"); });
+
+    /* -----------------------------------------------------------------------
      * POST /sauvegardeGenerale
      * --------------------------------------------------------------------- */
     serveur->on("/sauvegardeGenerale", HTTP_POST, [](AsyncWebServerRequest *req) {}, nullptr, [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t)
@@ -175,6 +199,8 @@ void WRC_WebHandler::definirRoutes()
         WRC_Settings::LUMIERE_INTERIEURE = doc["lumiere_interieure"] | WRC_Settings::LUMIERE_INTERIEURE;
         WRC_Settings::SERVO_PORTE        = doc["servo_porte"]        | WRC_Settings::SERVO_PORTE;
 
+        WRC_Settings::ESSIEUX            = doc["essieux"]        | WRC_Settings::ESSIEUX;
+
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Sauvegarde OK"); });
 
@@ -193,6 +219,8 @@ void WRC_WebHandler::definirRoutes()
         WRC_Settings::FEU_ARRIERE        = false;
         WRC_Settings::LUMIERE_INTERIEURE = false;
         WRC_Settings::SERVO_PORTE        = false;
+
+        WRC_Settings::ESSIEUX            = false;
 
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Paramètres réinitialisés"); });

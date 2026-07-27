@@ -18,10 +18,13 @@ String WRC_Json::construireJsonParametres()
     root["servo_porte_angle_ferme"] = WRC_Settings::SERVO_PORTE_ANGLE_FERME;
     root["servo_porte_vitesse"] = WRC_Settings::SERVO_PORTE_VITESSE;
 
-    // ⭐ 3 FX fixes — plus de boucle, plus de fx{}
+    // FX
     root["feu_arriere"] = WRC_Settings::FEU_ARRIERE;
     root["lumiere_interieure"] = WRC_Settings::LUMIERE_INTERIEURE;
     root["servo_porte"] = WRC_Settings::SERVO_PORTE;
+
+    // Information Wagon
+    root["essieux"] = WRC_Settings::ESSIEUX;
 
     String out;
     serializeJson(doc, out);
@@ -100,5 +103,20 @@ bool WRC_Json::lireServoPorteFx(const String &json, bool &FxServoPorte_actif)
         return false;
 
     FxServoPorte_actif = doc["servo_porte"].as<bool>();
+    return true;
+}
+
+/* ---------------------------------------------------------------------------
+ * JSON → parse ESSIEUX
+ * ------------------------------------------------------------------------- */
+bool WRC_Json::lireEssieux(const String &json, bool &essieux)
+{
+    JsonDocument doc;
+    if (deserializeJson(doc, json))
+        return false;
+    if (!doc["essieux"].is<bool>())
+        return false;
+
+    essieux = doc["essieux"].as<bool>();
     return true;
 }

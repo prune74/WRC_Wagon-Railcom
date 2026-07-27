@@ -7,7 +7,7 @@ int WRC_ServoDriver::s_pin     = WRC_FxPins::SERVO_DOOR;
 
 int WRC_ServoDriver::currentAngle = 0;
 int WRC_ServoDriver::targetAngle  = 0;
-int WRC_ServoDriver::servoSpeed   = 3;   // valeur par défaut, remplacée par settings.json
+int WRC_ServoDriver::servoSpeed   = 3;
 
 void WRC_ServoDriver::Begin()
 {

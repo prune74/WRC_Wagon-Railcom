@@ -10,10 +10,11 @@ uint16_t WRC_Settings::SERVO_PORTE_ANGLE_OUVERT = 160;
 uint16_t WRC_Settings::SERVO_PORTE_ANGLE_FERME = 20;
 uint16_t WRC_Settings::SERVO_PORTE_VITESSE = 3;
 
-// ⭐ 3 FX fixes
 bool WRC_Settings::FEU_ARRIERE = false;
 bool WRC_Settings::LUMIERE_INTERIEURE = false;
 bool WRC_Settings::SERVO_PORTE = false;
+
+bool WRC_Settings::ESSIEUX = false;
 
 void WRC_Settings::Begin()
 {
@@ -52,10 +53,11 @@ void WRC_Settings::readFile()
     SERVO_PORTE_ANGLE_FERME = doc["servo_porte_angle_ferme"] | SERVO_PORTE_ANGLE_FERME;
     SERVO_PORTE_VITESSE = doc["servo_porte_vitesse"] | SERVO_PORTE_VITESSE;
 
-    // ⭐ 3 FX fixes
     FEU_ARRIERE = doc["feu_arriere"] | FEU_ARRIERE;
     LUMIERE_INTERIEURE = doc["lumiere_interieure"] | LUMIERE_INTERIEURE;
     SERVO_PORTE = doc["servo_porte"] | SERVO_PORTE;
+
+    ESSIEUX = doc["essieux"] | ESSIEUX;
 }
 
 void WRC_Settings::writeFile()
@@ -70,10 +72,11 @@ void WRC_Settings::writeFile()
     root["servo_porte_angle_ferme"] = SERVO_PORTE_ANGLE_FERME;
     root["servo_porte_vitesse"] = SERVO_PORTE_VITESSE;
 
-    // ⭐ 3 FX fixes
     root["feu_arriere"] = FEU_ARRIERE;
     root["lumiere_interieure"] = LUMIERE_INTERIEURE;
     root["servo_porte"] = SERVO_PORTE;
+
+    root["essieux"] = WRC_Settings::ESSIEUX;
 
     File file = SPIFFS.open("/Settings.json", "w");
     if (!file)

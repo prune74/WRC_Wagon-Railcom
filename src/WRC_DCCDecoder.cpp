@@ -6,7 +6,6 @@
 #include "WRC_Debug.h"
 #include "WRC_Pins.h"
 
-// ⭐ Variables dynamiques FX (pilotées par le DCC)
 extern bool FX_ACTIVE_FEU_ARRIERE;
 extern bool FX_ACTIVE_LUMIERE_INTERIEURE;
 extern bool FX_ACTIVE_SERVO_PORTE;

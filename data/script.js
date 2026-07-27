@@ -41,16 +41,28 @@ function chargerParametres() {
             document.getElementById("adresse").value = p.adresse;
             document.getElementById("wifi_actif").checked = p.wifi_actif;
 
-            // ⭐ Paramètres servo
+            // Paramètres servo
             document.getElementById("servo_porte_angle_ouvert").value = p.servo_porte_angle_ouvert;
             document.getElementById("servo_porte_angle_ferme").value = p.servo_porte_angle_ferme;
             document.getElementById("servo_porte_vitesse").value = p.servo_porte_vitesse;
 
-            // ⭐ FX fixes
+            // FX
             document.getElementById("feu_arriere").checked = p.feu_arriere;
             document.getElementById("lumiere_interieure").checked = p.lumiere_interieure;
             document.getElementById("servo_porte").checked = p.servo_porte;
 
+            // ESSIEUX
+            if (p.essieux) {
+                // true → 4 essieux
+                document.getElementById("essieux4").checked = true;
+                document.getElementById("essieux2").checked = false;
+            } else {
+                // false → 2 essieux
+                document.getElementById("essieux4").checked = false;
+                document.getElementById("essieux2").checked = true;
+            }
+
+            // DEBUG
             document.getElementById("jsonDebug").innerHTML =
                 colorizeJson(p);
         });
@@ -130,13 +142,13 @@ function definirWifi() {
 }
 
 /* ---------------------------------------------------------------------------
- * DÉFINIR FX — version simple (3 FX fixes)
+ * DÉFINIR FX
  * ------------------------------------------------------------------------- */
 function definirFx() {
 
-    const feu_arriere        = document.getElementById("feu_arriere").checked;
+    const feu_arriere = document.getElementById("feu_arriere").checked;
     const lumiere_interieure = document.getElementById("lumiere_interieure").checked;
-    const servo_porte        = document.getElementById("servo_porte").checked;
+    const servo_porte = document.getElementById("servo_porte").checked;
 
     fetch("/definirFx", {
         method: "POST",
@@ -147,13 +159,13 @@ function definirFx() {
             servo_porte
         })
     })
-    .then(r => {
-        if (!r.ok) {
-            return r.text().then(msg => alert("Erreur FX : " + msg));
-        }
-        chargerParametres();
-    })
-    .catch(err => alert("Erreur réseau FX : " + err));
+        .then(r => {
+            if (!r.ok) {
+                return r.text().then(msg => alert("Erreur FX : " + msg));
+            }
+            chargerParametres();
+        })
+        .catch(err => alert("Erreur réseau FX : " + err));
 }
 
 /* ---------------------------------------------------------------------------
@@ -162,8 +174,8 @@ function definirFx() {
 function sauvegardeServo() {
 
     const servo_porte_angle_ouvert = parseInt(document.getElementById("servo_porte_angle_ouvert").value);
-    const servo_porte_angle_ferme  = parseInt(document.getElementById("servo_porte_angle_ferme").value);
-    const servo_porte_vitesse      = parseInt(document.getElementById("servo_porte_vitesse").value);
+    const servo_porte_angle_ferme = parseInt(document.getElementById("servo_porte_angle_ferme").value);
+    const servo_porte_vitesse = parseInt(document.getElementById("servo_porte_vitesse").value);
 
     fetch("/definirServoPorteParametres", {
         method: "POST",
@@ -173,12 +185,42 @@ function sauvegardeServo() {
             servo_porte_vitesse
         })
     })
-    .then(r => {
-        if (!r.ok) {
-            return r.text().then(msg => alert("Erreur servo : " + msg));
-        }
-        chargerParametres();
+        .then(r => {
+            if (!r.ok) {
+                return r.text().then(msg => alert("Erreur servo : " + msg));
+            }
+            chargerParametres();
+        })
+}
+
+/* ---------------------------------------------------------------------------
+ * DEFINIR ESSIEUX
+ * ------------------------------------------------------------------------- */
+function choisirEssieux(val) {
+    if (val === 2) {
+        document.getElementById("essieux2").checked = true;
+        document.getElementById("essieux4").checked = false;
+    } else {
+        document.getElementById("essieux2").checked = false;
+        document.getElementById("essieux4").checked = true;
+    }
+}
+
+function definirEssieux() {
+    const essieux = document.getElementById("essieux4").checked;
+    // false = 2 essieux
+    // true  = 4 essieux
+
+    fetch("/definirEssieux", {
+        method: "POST",
+        body: JSON.stringify({ essieux })
     })
+        .then(r => {
+            if (!r.ok) {
+                return r.text().then(msg => alert("Erreur essieux : " + msg));
+            }
+            chargerParametres();
+        })
 }
 
 /* ---------------------------------------------------------------------------
@@ -228,10 +270,15 @@ function sauvegardeGenerale() {
     const servo_porte_angle_ferme = parseInt(document.getElementById("servo_porte_angle_ferme").value);
     const servo_porte_vitesse = parseInt(document.getElementById("servo_porte_vitesse").value);
 
-    // ⭐ FX fixes
+    // FX
     const feu_arriere = document.getElementById("feu_arriere").checked;
     const lumiere_interieure = document.getElementById("lumiere_interieure").checked;
     const servo_porte = document.getElementById("servo_porte").checked;
+
+    // ESSIEUX
+    const essieux = document.getElementById("essieux4").checked;
+    // false = 2 essieux
+    // true  = 4 essieux
 
     fetch("/sauvegardeGenerale", {
         method: "POST",
@@ -244,7 +291,8 @@ function sauvegardeGenerale() {
             servo_porte_vitesse,
             feu_arriere,
             lumiere_interieure,
-            servo_porte
+            servo_porte,
+            essieux
         })
     })
         .then(r => {

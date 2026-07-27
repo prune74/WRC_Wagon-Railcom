@@ -8,6 +8,9 @@ public:
     static bool WIFI_ACTIF;
     static uint16_t ADRESSE;
 
+    // Information Wagon
+    static bool ESSIEUX;
+    
     // Servo porte
     static uint16_t SERVO_PORTE_ANGLE_OUVERT;
     static uint16_t SERVO_PORTE_ANGLE_FERME;
@@ -17,6 +20,8 @@ public:
     static bool FEU_ARRIERE;
     static bool LUMIERE_INTERIEURE;
     static bool SERVO_PORTE;
+
+
 
     // Fonctions
     static void Begin();
