@@ -65,6 +65,12 @@ function chargerParametres() {
             // TYPE WAGON
             document.getElementById("type_wagon").value = p.type_wagon;
 
+            // AUTO-RESTRICTION selon le type
+            autoRestrictionSelonType();
+
+            // RESTRICTION SAUVEGARDEE
+            document.getElementById("restriction_wagon").value = p.restriction_wagon;
+
             // LONGUEUR MM WAGON
             document.getElementById("longueur_mm").value = p.longueur_mm;
 
@@ -230,20 +236,25 @@ function definirEssieux() {
 }
 
 /* ---------------------------------------------------------------------------
- * DEFINIR TYPE WAGON
+ * DEFINIR TYPE WAGON + RESTRICTION
  * ------------------------------------------------------------------------- */
 function definirTypeWagon() {
     const type_wagon = document.getElementById("type_wagon").value;
+    const restriction_wagon = parseInt(document.getElementById("restriction_wagon").value);
 
     fetch("/definirTypeWagon", {
         method: "POST",
-        body: JSON.stringify({ type_wagon })
+        body: JSON.stringify({
+            type_wagon,
+            restriction_wagon
+        })
     })
         .then(r => {
-            if (!r.ok) return r.text().then(msg => alert("Erreur type wagon : " + msg));
+            if (!r.ok) {
+                return r.text().then(msg => alert("Erreur : " + msg));
+            }
             chargerParametres();
         })
-        .catch(err => alert("Erreur réseau type wagon : " + err));
 }
 
 /* ---------------------------------------------------------------------------
@@ -259,7 +270,6 @@ function definirLongueurWagon() {
 
     fetch("/definirLongueurWagon", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ longueur_mm })
     })
         .then(r => {
@@ -267,6 +277,40 @@ function definirLongueurWagon() {
             chargerParametres();
         })
         .catch(err => alert("Erreur réseau longueur : " + err));
+}
+
+/* ---------------------------------------------------------------------------
+ * DEFINIR RESTRICTION VITESSE WAGON
+ * ------------------------------------------------------------------------- */
+function autoRestrictionSelonType() {
+    const type = document.getElementById("type_wagon").value;
+
+    const restrictions = {
+        "voiture_couchette":        -1,
+        "voiture_restaurant_bar":   -1,
+        "voiture_TGV":              -1,
+        "voiture_voyageurs":        -1,
+
+        "wagon_citerne":            20,
+        "wagon_porte-char_militaire": 20,
+        "wagon_travaux_speciaux":   20,
+
+        "wagon_plat_rancher":       40,
+        "wagon_tombereau":          40,
+        "wagon_tremie_coke":        40,
+
+        "wagon_bache":              65,
+        "wagon_cerealier":          65,
+        "wagon_couvert":            65,
+        "wagon_parois_coulissantes":65,
+        "wagon_porte-autos":        65,
+        "wagon_porte-conteneurs":   65,
+
+        "autre":                    40
+    };
+
+    const restriction = restrictions[type] ?? -1;
+    document.getElementById("restriction_wagon").value = restriction;
 }
 
 /* ---------------------------------------------------------------------------
@@ -337,6 +381,9 @@ function sauvegardeGenerale() {
         return;
     }
 
+    // RESTRICTION VITESSE WAGON
+    const restriction_wagon = parseInt(document.getElementById("restriction_wagon").value);
+
     fetch("/sauvegardeGenerale", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -351,7 +398,8 @@ function sauvegardeGenerale() {
             servo_porte,
             essieux,
             type_wagon,
-            longueur_mm
+            longueur_mm,
+            restriction_wagon
         })
     })
         .then(r => {

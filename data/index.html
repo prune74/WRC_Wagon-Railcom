@@ -68,7 +68,7 @@
 
         <!-- Carte ESSIEUX -->
         <div class="card">
-            <h4>Données ferroviaires</h4>
+            <h4>Nombre d'essieux</h4>
 
             <div class="form-grid-2col">
                 <label>2 essieux :</label>
@@ -91,7 +91,7 @@
 
             <div class="form-grid-2col">
                 <label>Type :</label>
-                <select id="type_wagon">
+                <select id="type_wagon" onchange="autoRestrictionSelonType()">
                     <option value="wagon_bache">Wagon bâché</option>
                     <option value="wagon_cerealier">Wagon céréalier</option>
                     <option value="wagon_citerne">Wagon citerne</option>
@@ -110,12 +110,25 @@
                     <option value="voiture_voyageurs">Voiture voyageurs</option>
                     <option value="autre">Autre</option>
                 </select>
+
+                <!-- Carte RESTRICTION VITESSE WAGON -->
+                <div class="form-grid-2col">
+                    <label>Restriction :</label>
+                    <select id="restriction_wagon">
+                        <option value="-1">Aucune restriction</option>
+                        <option value="20">R20</option>
+                        <option value="30">R30</option>
+                        <option value="40">R40</option>
+                        <option value="65">R65</option>
+                    </select>
+                </div>
             </div>
 
             <div class="button-row">
                 <button class="btn-primary" onclick="definirTypeWagon()">Enregistrer</button>
             </div>
         </div>
+
 
         <!-- Carte LONGUEUR MM WAGON -->
         <div class="card">
@@ -130,6 +143,8 @@
                 <button class="btn-primary" onclick="definirLongueurWagon()">Enregistrer</button>
             </div>
         </div>
+
+
 
         <!-- Carte Servo Porte -->
         <div class="card">

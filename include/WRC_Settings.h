@@ -18,6 +18,9 @@ public:
     // Longueur WAGON en mm
     static uint16_t LONGUEUR_MM;
 
+    // Restriction Vitesse
+    static int8_t RESTRICTION_WAGON;
+
     // Servo porte
     static uint16_t SERVO_PORTE_ANGLE_OUVERT;
     static uint16_t SERVO_PORTE_ANGLE_FERME;

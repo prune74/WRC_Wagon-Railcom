@@ -9,5 +9,6 @@
   "servo_porte": false,
   "essieux": false,
   "type_wagon": "autre",
-  "longueur_mm": 300
+  "longueur_mm": 300,
+  "restriction_wagon": "none"
 }

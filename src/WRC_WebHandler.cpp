@@ -71,6 +71,7 @@ void WRC_WebHandler::definirRoutes()
         root["essieux"]                     = WRC_Settings::ESSIEUX;
         root["type_wagon"]                  = WRC_Settings::TYPE_WAGON;
         root["longueur_mm"]                 = WRC_Settings::LONGUEUR_MM;
+        root["restriction_wagon"]           = WRC_Settings::RESTRICTION_WAGON;
 
         String out;
         serializeJson(doc, out);
@@ -191,32 +192,51 @@ void WRC_WebHandler::definirRoutes()
     }
 
     String type = doc["type_wagon"] | "";
+    int8_t restriction = doc["restriction_wagon"] | 0;
 
-    if (type != "wagon_bache" &&
-        type != "wagon_cerealier" &&
-        type != "wagon_citerne" &&
-        type != "wagon_couvert" &&
-        type != "wagon_parois_coulissantes" &&
-        type != "wagon_plat_rancher" &&
-        type != "wagon_porte-autos" &&
-        type != "wagon_porte-char_militaire" &&
-        type != "wagon_porte-conteneurs" &&
-        type != "wagon_tombereau" &&
-        type != "wagon_travaux_speciaux" &&
-        type != "wagon_tremie_coke" &&
-        type != "voiture_couchette" &&
-        type != "voiture_restaurant_bar" &&
-        type != "voiture_TGV" &&
-        type != "voiture_voyageurs" &&
-        type != "autre")
-    {
+    // --- Validation du type ---
+    static const char* typesValides[] = {
+        "wagon_bache", 
+        "wagon_cerealier", 
+        "wagon_citerne", 
+        "wagon_couvert",
+        "wagon_parois_coulissantes", 
+        "wagon_plat_rancher", 
+        "wagon_porte-autos",
+        "wagon_porte-char_militaire", 
+        "wagon_porte-conteneurs", 
+        "wagon_tombereau",
+        "wagon_travaux_speciaux", 
+        "wagon_tremie_coke", 
+        "voiture_couchette",
+        "voiture_restaurant_bar", 
+        "voiture_TGV", 
+        "voiture_voyageurs", 
+        "autre"
+    };
+
+    bool valide = false;
+    for (auto &t : typesValides)
+        if (type == t) { valide = true; break; }
+
+    if (!valide) {
         req->send(400, "text/plain", "Type wagon invalide");
         return;
     }
 
-    WRC_Settings::TYPE_WAGON = type;
-    WRC_Settings::writeFile();
+    // --- Validation de la restriction ---
+    if (restriction != -1 && restriction != 20 &&
+        restriction != 30 && restriction != 40 && restriction != 65)
+    {
+        req->send(400, "text/plain", "Restriction invalide");
+        return;
+    }
 
+    // --- Enregistrement ---
+    WRC_Settings::TYPE_WAGON = type;
+    WRC_Settings::RESTRICTION_WAGON = restriction;
+
+    WRC_Settings::writeFile();
     req->send(200, "text/plain", "OK"); });
 
     /* -----------------------------------------------------------------------
@@ -271,6 +291,7 @@ void WRC_WebHandler::definirRoutes()
         WRC_Settings::ESSIEUX                   = doc["essieux"]                    | WRC_Settings::ESSIEUX;
         WRC_Settings::TYPE_WAGON                = doc["type_wagon"]                 | WRC_Settings::TYPE_WAGON;
         WRC_Settings::LONGUEUR_MM               = doc["longueur_mm"]                | WRC_Settings::LONGUEUR_MM;
+        WRC_Settings::RESTRICTION_WAGON         = doc["restriction_wagon"]          | WRC_Settings::RESTRICTION_WAGON;
 
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Sauvegarde OK"); });
@@ -294,6 +315,7 @@ void WRC_WebHandler::definirRoutes()
         WRC_Settings::ESSIEUX                   = false;
         WRC_Settings::TYPE_WAGON                = "autre";
         WRC_Settings::LONGUEUR_MM               = 300;
+        WRC_Settings::RESTRICTION_WAGON         = -1;
 
         WRC_Settings::writeFile();
         req->send(200, "text/plain", "Paramètres réinitialisés"); });

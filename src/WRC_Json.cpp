@@ -27,6 +27,7 @@ String WRC_Json::construireJsonParametres()
     root["essieux"] = WRC_Settings::ESSIEUX;
     root["type_wagon"] = WRC_Settings::TYPE_WAGON;
     root["longueur_mm"] = WRC_Settings::LONGUEUR_MM;
+    root["restriction_wagon"] = WRC_Settings::RESTRICTION_WAGON;
 
     String out;
     serializeJson(doc, out);
